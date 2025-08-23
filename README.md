@@ -1,6 +1,3 @@
-# DEPI-Hospital-ERP
-
-# Database ERD
 
 ### Patient Management
 
@@ -14,7 +11,7 @@
         
     - `DateOfBirth` (DATE)
         
-    - `Gender` (VARCHAR)
+    - `Gender` (FK to `Gender`, INT)
         
     - `Address` (VARCHAR)
         
@@ -26,10 +23,26 @@
         
     - `PatientID` (Foreign Key to `Patients`, INT)
 	    
-    - Diagnosis (VARCHAR)
+    - `DoctorID` (FK to `Employees`, INT)
+	    
+	- `Diagnosesid` (FK to Diagnoses, INT)
         
-    - `DiagnoseData` (VARCHAR)
-        
+    - `DiagnoseDate` (DATE)
+	
+-  **Diagnoses**
+	
+	- `DiagnosesID` (PK, INT)
+		
+	- `Diagnoses` (VARCHAR)
+    
+-  **Treatment**
+	
+	- `TreatmentID` (PK, INT)
+		
+	- `DiagnosesID` (FK to `Diagnoses`, INT)
+		
+	- `Treatment` (VARCHAR)
+
 - **Appointments:**
     
     - `AppointmentID` (Primary Key, INT)
@@ -37,55 +50,48 @@
     - `PatientID` (Foreign Key to `Patients`, INT)
         
     - `DoctorID` (Foreign Key to `Employees`, INT)
+	    
+    - `ServiceID` (FK to `Services`, INT)
         
     - `AppointmentDateTime` (DATETIME)
         
     - `Status` (VARCHAR)
-        
 
 ---
 
 ### Billing
 
-- **HospitalInvoices:**
+- **Invoices:**
     
     - `InvoiceID` (Primary Key, INT)
         
     - `PatientID` (Foreign Key to `Patients`, INT)
+	    
+    - `InvoiceType` (FK to `InvoiceType`, INT)
         
     - `InvoiceDate` (DATE)
         
-    - `TotalAmount` (DECIMAL)
+    - `TotalAmount` (Derived from `LineTotal`, DECIMAL)
         
-    - `PaymentStatus` (VARCHAR)
+    - `PaymentStatus` (FK to `PaymentStatus`, INT)
+	    
+    - `PayDate` (DATE)
         
 - **HospitalInvoiceItems:**
     
     - `InvoiceItemID` (Primary Key, INT)
         
-    - `InvoiceID` (Foreign Key to `HospitalInvoices`, INT)
+    - `InvoiceID` (Foreign Key to `Invoices`, INT)
         
     - `ServiceID` (Foreign Key to `Services`, INT)
         
     - `LineTotal` (DECIMAL)
         
-- **MedicationInvoices:**
-    
-    - `InvoiceID` (Primary Key, INT)
-        
-    - `PatientID` (Foreign Key to `Patients`, INT)
-        
-    - `InvoiceDate` (DATE)
-        
-    - `TotalAmount` (DECIMAL)
-        
-    - `PaymentStatus` (VARCHAR)
-        
 - **MedicationInvoiceItems:**
     
     - `InvoiceItemID` (Primary Key, INT)
         
-    - `InvoiceID` (Foreign Key to `MedicationInvoices`, INT)
+    - `InvoiceID` (Foreign Key to `Invoices`, INT)
         
     - `MedicationID` (Foreign Key to `Medications`, INT)
         
@@ -103,6 +109,8 @@
     - `DepartmentID` (Primary Key, INT)
         
     - `DepartmentName` (VARCHAR)
+	    
+    - `Manager` (Foreign Key to `Employees`, INT)
         
 - **Roles:**
     
@@ -117,6 +125,8 @@
     - `FirstName` (VARCHAR)
         
     - `LastName` (VARCHAR)
+	    
+    - `Gender` (FK to Gender, INT)
         
     - `RoleID` (Foreign Key to `Roles`, INT)
         
@@ -154,11 +164,39 @@
 - **Medications:**
     
     - `MedicationID` (Primary Key, INT)
+	    
+    - `BarCode` (VARCHAR(13))
         
-    - `Name` (VARCHAR)
+    - `Name` (Primary Key, VARCHAR)
         
     - `Description` (VARCHAR)
 	    
-    - Cost (DECIMAL)
+    - `Cost` (DECIMAL)
+		
+- **Inventory:**
+    
+    - `MedicationID` (Primary Key, INT)
+	    
+    - `Quantity` (INT)
+	    
+    - `ExpiryDate` (DATE)
+
+# Lookup Tables for Normalization
+
+- **Gender:**
+    
+    - `GenderID` (Primary Key, INT)
         
-    - `Dosage` (VARCHAR)
+    - `GenderName` (VARCHAR)
+    
+- **PaymentStatus:**
+	
+	- `PaymentStatusID` (Primary Key, INT)
+		
+	- `StatusName` (VARCHAR)
+	
+- `InvoiceType:`
+	
+	- `InvoiceTypeID` (Primary Key, INT)
+		
+	- `InvoiceName` (VARCHAR)
