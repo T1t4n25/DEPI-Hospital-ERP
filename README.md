@@ -1,7 +1,7 @@
 # 🏥 Hospital ERP System
 
 ## 📘 Overview
-The **Hospital ERP System** is a web-based application developed using **ASP.NET Core MVC** and **Microsoft SQL Server (MSSQL)**.  
+The **Hospital ERP System** is a modern web-based application developed using **.NET Core Web API** (backend) and **Angular** (frontend) with **Microsoft SQL Server (MSSQL)**.  
 It automates hospital workflows such as patient registration, appointments, billing, employee management, and inventory tracking, ensuring reliability and efficiency for small hospitals.
 
 ---
@@ -22,9 +22,9 @@ The system aims to:
 1. **Centralize hospital operations** (patients, billing, HR, inventory)
 2. **Automate scheduling and invoicing**
 3. **Ensure data integrity** through MSSQL foreign keys
-4. **Enable secure access** with role-based authentication
+4. **Enable secure access** with role-based authentication via Keycloak
 5. **Provide analytics and reporting**
-6. **Use scalable architecture** with ASP.NET Core MVC + MSSQL
+6. **Use scalable architecture** with .NET Core Web API + Angular + MSSQL
 
 ---
 
@@ -69,43 +69,66 @@ The system aims to:
 | Category | Description |
 |-----------|-------------|
 | **Performance** | ≤ 2s response time, ≤ 100 concurrent users |
-| **Scalability** | Modular design for future modules |
-| **Security** | ASP.NET Identity with role-based authorization |
+| **Scalability** | Modular design with Vertical Slice Architecture for future modules |
+| **Security** | Keycloak JWT with role-based authorization |
 | **Data Integrity** | Enforced via MSSQL foreign keys |
 | **Availability** | ≥ 99% uptime during working hours |
-| **Maintainability** | Clear MVC separation for maintainable code |
-| **Usability** | Clean UI using Razor Pages and Bootstrap |
+| **Maintainability** | Vertical Slice Architecture with CQRS pattern for maintainable code |
+| **Usability** | Modern UI using Angular with responsive design |
 | **Backup & Recovery** | Automated MSSQL daily backups |
-| **Compatibility** | Compatible with modern browsers and Windows Server |
+| **Compatibility** | Compatible with modern browsers (Chrome, Firefox, Edge, Safari) |
 
 ---
 
 ## 🏗️ Software Architecture
 
 ### Architecture Overview
-Built on the **Model–View–Controller (MVC)** pattern in **.NET Core 8.0**, ensuring clean separation between UI, business logic, and data.
+Built on **Vertical Slice Architecture** with **CQRS (Command Query Responsibility Segregation)** pattern in **.NET 9 Web API** for the backend and **Angular** for the frontend, ensuring clean separation between UI, business logic, and data.
 
 ### Component Breakdown
 
 | Layer | Description | Technology |
 |--------|-------------|-------------|
-| **Presentation Layer (View)** | Razor Pages + Bootstrap-based UI | HTML, CSS, Bootstrap |
-| **Controller Layer** | Handles requests, logic, and routing | ASP.NET Core Controllers |
-| **Model Layer** | Entity models and EF Core ORM | Entity Framework Core |
+| **Frontend Layer** | Angular SPA with responsive UI | Angular, TypeScript, HTML5, CSS3 |
+| **API Layer** | RESTful Web API with Vertical Slices | .NET 9 Web API, MediatR |
+| **Business Logic Layer** | Commands and Queries (CQRS) | C# Handlers, AutoMapper |
+| **Data Access Layer** | Entity models and EF Core ORM | Entity Framework Core |
 | **Database Layer** | Stores relational data | Microsoft SQL Server |
-| **Authentication** | Login, roles, permissions | ASP.NET Core Identity |
-| **Reporting** | Analytics and reports | RDLC / FastReport.NET / Razor Reports |
+| **Authentication** | JWT-based authentication with roles | Keycloak |
+| **Reporting** | Analytics and reports | RDLC / FastReport.NET / Angular Reports |
 
 ---
 
 ## 🧱 Technology Stack
 
-**Backend:** ASP.NET Core 8.0 MVC, EF Core  
-**Frontend:** Razor Pages, HTML5, CSS3, Bootstrap  
-**Database:** Microsoft SQL Server (MSSQL)  
-**Authentication:** ASP.NET Identity  
-**Reporting:** RDLC / FastReport.NET  
-**Hosting:** IIS (on-premise) or Azure App Service  
+**Backend:** 
+- .NET 9 Web API
+- Entity Framework Core
+- MediatR (CQRS pattern)
+- AutoMapper
+- FluentValidation
+- Vertical Slice Architecture
+
+**Frontend:** 
+- Angular (TypeScript)
+- HTML5, CSS3
+- Angular Material / Bootstrap (responsive UI)
+
+**Database:** 
+- Microsoft SQL Server (MSSQL)
+
+**Authentication & Authorization:** 
+- Keycloak (JWT tokens)
+- Role-based access control (RBAC)
+
+**Reporting:** 
+- RDLC / FastReport.NET
+
+**Hosting:** 
+- Production: VPS with Docker & Docker Compose
+- Reverse Proxy: Nginx
+- SSL/TLS: Let's Encrypt (Certbot)
+- Containerization: Docker containers for all services  
 
 ---
 
@@ -130,10 +153,10 @@ Built on the **Model–View–Controller (MVC)** pattern in **.NET Core 8.0**, e
 
 | Role | Responsibility |
 |------|----------------|
-| **Backend Dev 1** | Database design, Entity Framework, core logic |
-| **Backend Dev 2** | Billing, Invoices, Medications |
-| **Frontend Dev 1** | Razor Views for Patients & Appointments |
-| **Frontend Dev 2** | Billing & Inventory UI, Validation, Testing |
+| **Backend Dev 1** | Database design, Entity Framework, API endpoints, CQRS handlers |
+| **Backend Dev 2** | Billing, Invoices, Medications, Keycloak integration |
+| **Frontend Dev 1** | Angular components for Patients & Appointments |
+| **Frontend Dev 2** | Billing & Inventory UI, Angular services, Testing |
 
 ---
 
@@ -142,9 +165,13 @@ Built on the **Model–View–Controller (MVC)** pattern in **.NET Core 8.0**, e
 | Risk | Mitigation |
 |------|-------------|
 | DB schema changes mid-project | Lock schema after Week 2 |
-| Controller/View mismatch | Use shared ViewModels |
-| Authentication issues | Test early with ASP.NET Identity |
-| Deployment errors | Test on IIS in advance |
+| API/Frontend integration issues | Use TypeScript interfaces and OpenAPI/Swagger |
+| Authentication issues | Test early with Keycloak integration |
+| CORS issues | Configure CORS properly in API startup |
+| Docker container issues | Test Docker setup locally before VPS deployment |
+| VPS resource constraints | Monitor container resources, optimize images |
+| SSL certificate expiration | Set up automatic renewal with Certbot |
+| Deployment errors | Test Docker Compose on staging VPS in advance |
 
 ---
 
@@ -159,8 +186,12 @@ Built on the **Model–View–Controller (MVC)** pattern in **.NET Core 8.0**, e
 ---
 
 ## 📦 Deliverables
-- ASP.NET MVC Source Code (C#)
+- .NET Core Web API Source Code (C#) with Vertical Slice Architecture
+- Angular Frontend Source Code (TypeScript)
 - SQL Server Database + Scripts
+- Keycloak Configuration
+- Docker Configuration Files (Dockerfile, docker-compose.yml)
+- Nginx Configuration Files
 - Documentation (Word/PDF + README)
 - Test & Deployment Reports
 - Presentation Slides
@@ -168,12 +199,240 @@ Built on the **Model–View–Controller (MVC)** pattern in **.NET Core 8.0**, e
 ---
 
 ## 📈 Deployment & Hosting
-- **Framework:** .NET Core MVC 8.0  
-- **Database:** Microsoft SQL Server  
-- **Hosting:** IIS / Azure App Service  
+
+### Production Environment
+- **Hosting:** VPS (Virtual Private Server) with Docker
+- **Orchestration:** Docker Compose
+- **Reverse Proxy:** Nginx
+- **SSL/TLS:** Let's Encrypt (via Certbot)
+- **Container Management:** Docker & Docker Compose
+
+### Backend API
+- **Framework:** .NET 9 Web API  
+- **Database:** Microsoft SQL Server (Docker container)
+- **Container:** Docker containerized .NET API
 - **ORM:** Entity Framework Core  
-- **Auth:** ASP.NET Identity  
-- **Reporting:** RDLC / FastReport.NET  
+- **Auth:** Keycloak (JWT) - Docker container
+- **Architecture:** Vertical Slice Architecture with CQRS
+- **Port:** Exposed via Nginx reverse proxy (HTTPS)
+
+### Frontend Application
+- **Framework:** Angular  
+- **Build:** Angular CLI (ng build --prod)
+- **Hosting:** Nginx serving static files (Docker container)
+- **API Communication:** HTTP Client with JWT interceptors
+- **Port:** Exposed via Nginx reverse proxy (HTTPS)
+
+### Docker Services
+The application runs as a multi-container Docker setup:
+- **API Container:** .NET 9 Web API
+- **Frontend Container:** Nginx serving Angular build
+- **Database Container:** SQL Server
+- **Keycloak Container:** Authentication server
+- **Nginx Container:** Reverse proxy and load balancer
+
+### Development Setup
+- **API URL:** `http://localhost:5000` (or configured port)
+- **Frontend URL:** `http://localhost:4200` (Angular default)
+- **Keycloak URL:** `http://localhost:8080` (configured during setup)  
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- **.NET 9 SDK** - [Download](https://dotnet.microsoft.com/download/dotnet/9.0)
+- **Node.js** (v18 or higher) and **npm** - [Download](https://nodejs.org/)
+- **Angular CLI** - Install via `npm install -g @angular/cli`
+- **SQL Server** - SQL Server 2019 or higher / SQL Server Express
+- **Keycloak** - For authentication (can run via Docker or standalone)
+
+### Backend Setup (.NET Core API)
+
+1. **Navigate to the backend directory:**
+   ```bash
+   cd backend
+   ```
+
+2. **Restore dependencies:**
+   ```bash
+   dotnet restore
+   ```
+
+3. **Configure connection string:**
+   - Update `appsettings.json` with your SQL Server connection string
+   - Update Keycloak configuration in `appsettings.json`
+
+4. **Run database migrations:**
+   ```bash
+   dotnet ef database update
+   ```
+
+5. **Run the API:**
+   ```bash
+   dotnet run
+   ```
+   - API will be available at `http://localhost:5000` (or configured port)
+
+### Frontend Setup (Angular)
+
+1. **Navigate to the frontend directory:**
+   ```bash
+   cd frontend
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Configure API endpoint:**
+   - Update `environment.ts` with your API URL:
+     ```typescript
+     export const environment = {
+       production: false,
+       apiUrl: 'http://localhost:5000/api'
+     };
+     ```
+
+4. **Run the Angular development server:**
+   ```bash
+   ng serve
+   ```
+   - Frontend will be available at `http://localhost:4200`
+
+### Authentication Setup (Keycloak)
+
+1. **Configure Keycloak realm** with the following roles:
+   - Admin
+   - Doctor
+   - Receptionist
+   - Pharmacist
+   - Accountant
+
+2. **Update API `appsettings.json`** with Keycloak configuration:
+   ```json
+   "Keycloak": {
+     "Authority": "http://localhost:8080/auth/realms/your-realm",
+     "Audience": "your-client-id"
+   }
+   ```
+
+3. **Update Angular `environment.ts`** with Keycloak client configuration
+
+### Running the Application (Development)
+
+1. **Start Keycloak** (if using local instance)
+2. **Start the .NET API** (backend)
+3. **Start the Angular application** (frontend)
+4. **Access the application** at `http://localhost:4200`
+5. **Login** using credentials configured in Keycloak
+
+---
+
+## 🐳 Docker Deployment (Production - VPS)
+
+### Prerequisites for VPS
+- **VPS with Ubuntu/Debian** (recommended: 4GB RAM, 2 CPU cores minimum)
+- **Docker** installed on VPS
+- **Docker Compose** installed on VPS
+- **Domain name** (optional, for SSL)
+
+### VPS Setup Steps
+
+1. **SSH into your VPS:**
+   ```bash
+   ssh user@your-vps-ip
+   ```
+
+2. **Install Docker & Docker Compose** (if not installed):
+   ```bash
+   # Install Docker
+   curl -fsSL https://get.docker.com -o get-docker.sh
+   sudo sh get-docker.sh
+   
+   # Install Docker Compose
+   sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+   sudo chmod +x /usr/local/bin/docker-compose
+   ```
+
+3. **Clone the repository:**
+   ```bash
+   git clone <your-repo-url>
+   cd "Final Project"
+   ```
+
+4. **Configure environment variables:**
+   - Update `docker-compose.yml` with production settings
+   - Update `.env` file with database credentials, Keycloak settings, etc.
+
+5. **Build and run with Docker Compose:**
+   ```bash
+   docker-compose -f docker-compose.prod.yml up -d --build
+   ```
+
+### Docker Compose Structure
+
+The `docker-compose.prod.yml` file should include:
+- **API service:** .NET 9 Web API container
+- **Frontend service:** Nginx serving Angular build
+- **Database service:** SQL Server container
+- **Keycloak service:** Keycloak authentication server
+- **Nginx service:** Reverse proxy for all services
+
+### Nginx Configuration
+
+Nginx acts as a reverse proxy:
+- Routes `/api/*` to the .NET API container
+- Serves Angular static files for all other routes
+- Handles SSL/TLS termination
+- Configures CORS headers
+
+### SSL/TLS Setup (Optional)
+
+1. **Install Certbot:**
+   ```bash
+   sudo apt-get update
+   sudo apt-get install certbot python3-certbot-nginx
+   ```
+
+2. **Obtain SSL certificate:**
+   ```bash
+   sudo certbot --nginx -d yourdomain.com
+   ```
+
+3. **Auto-renewal:**
+   ```bash
+   sudo certbot renew --dry-run
+   ```
+
+### Docker Commands
+
+```bash
+# Start all services
+docker-compose up -d
+
+# Stop all services
+docker-compose down
+
+# View logs
+docker-compose logs -f
+
+# Restart a specific service
+docker-compose restart api
+
+# Rebuild and restart
+docker-compose up -d --build
+```
+
+### Production Environment Variables
+
+Ensure the following are configured in `.env` or `docker-compose.yml`:
+- Database connection strings
+- Keycloak URLs and credentials
+- API base URLs
+- CORS allowed origins
+- JWT secret keys
 
 ---
 
