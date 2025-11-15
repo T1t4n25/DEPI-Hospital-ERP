@@ -496,3 +496,7 @@ __pycache__/
 *.pyzzz
 *.pyzzzz
 __pycache__/get-keycloak-token.cpython-313.pyc
+
+
+# general 
+token.txt
