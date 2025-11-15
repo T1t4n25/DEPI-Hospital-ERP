@@ -271,10 +271,10 @@ The application runs as a multi-container Docker setup:
 
 ### Backend Setup (.NET Core API)
 
-1. **Navigate to the backend directory:**
+1. **Navigate to the HospitalERP.API directory:**
 
    ```bash
-   cd backend
+   cd HospitalERP.API
    ```
 2. **Restore dependencies:**
 
