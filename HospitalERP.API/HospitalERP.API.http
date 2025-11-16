@@ -1,6 +1,403 @@
-@HospitalERP.API_HostAddress = http://localhost:5037
+@HospitalERP.API_HostAddress = http://localhost:5001
+@Token = your-jwt-token-here
 
-GET {{HospitalERP.API_HostAddress}}/weatherforecast/
-Accept: application/json
+# Get JWT token from Keycloak using the Python script:
+# cd HospitalERP.API
+# python op_scripts/get-keycloak-token.py
+# Then copy the token from token.txt and replace @Token above
 
 ###
+# Patients API
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/patients?pageNumber=1&pageSize=10
+Authorization: Bearer {{Token}}
+
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/patients/1
+Authorization: Bearer {{Token}}
+
+###
+
+POST {{HospitalERP.API_HostAddress}}/api/patients
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "dateOfBirth": "1990-01-15",
+  "genderID": 1,
+  "bloodTypeID": 1,
+  "address": "123 Main St",
+  "contactNumber": "1234567890"
+}
+
+###
+
+PUT {{HospitalERP.API_HostAddress}}/api/patients/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe Updated",
+  "dateOfBirth": "1990-01-15",
+  "genderID": 1,
+  "bloodTypeID": 1,
+  "address": "123 Main St Updated",
+  "contactNumber": "1234567890"
+}
+
+###
+
+DELETE {{HospitalERP.API_HostAddress}}/api/patients/1
+Authorization: Bearer {{Token}}
+
+###
+# Departments API
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/departments?pageNumber=1&pageSize=10
+Authorization: Bearer {{Token}}
+
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/departments/1
+Authorization: Bearer {{Token}}
+
+###
+
+POST {{HospitalERP.API_HostAddress}}/api/departments
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "departmentName": "Cardiology",
+  "managerID": 1
+}
+
+###
+
+PUT {{HospitalERP.API_HostAddress}}/api/departments/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "departmentName": "Cardiology Updated",
+  "managerID": 1
+}
+
+###
+
+DELETE {{HospitalERP.API_HostAddress}}/api/departments/1
+Authorization: Bearer {{Token}}
+
+###
+# Services API
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/services?pageNumber=1&pageSize=10
+Authorization: Bearer {{Token}}
+
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/services/1
+Authorization: Bearer {{Token}}
+
+###
+
+POST {{HospitalERP.API_HostAddress}}/api/services
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "serviceName": "Consultation",
+  "cost": 100.00,
+  "departmentID": 1
+}
+
+###
+
+PUT {{HospitalERP.API_HostAddress}}/api/services/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "serviceName": "Consultation Updated",
+  "cost": 150.00,
+  "departmentID": 1
+}
+
+###
+
+DELETE {{HospitalERP.API_HostAddress}}/api/services/1
+Authorization: Bearer {{Token}}
+
+###
+# Employees API
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/employees?pageNumber=1&pageSize=10
+Authorization: Bearer {{Token}}
+
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/employees/1
+Authorization: Bearer {{Token}}
+
+###
+
+POST {{HospitalERP.API_HostAddress}}/api/employees
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "genderID": 2,
+  "roleID": 2,
+  "departmentID": 1,
+  "contactNumber": "9876543210",
+  "hireDate": "2020-01-01"
+}
+
+###
+
+PUT {{HospitalERP.API_HostAddress}}/api/employees/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "firstName": "Jane",
+  "lastName": "Smith Updated",
+  "genderID": 2,
+  "roleID": 2,
+  "departmentID": 1,
+  "contactNumber": "9876543210",
+  "hireDate": "2020-01-01"
+}
+
+###
+
+DELETE {{HospitalERP.API_HostAddress}}/api/employees/1
+Authorization: Bearer {{Token}}
+
+###
+# Appointments API
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/appointments?pageNumber=1&pageSize=10
+Authorization: Bearer {{Token}}
+
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/appointments/1
+Authorization: Bearer {{Token}}
+
+###
+
+POST {{HospitalERP.API_HostAddress}}/api/appointments
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "patientID": 1,
+  "doctorID": 1,
+  "serviceID": 1,
+  "appointmentDateTime": "2024-12-25T10:00:00",
+  "status": "Scheduled"
+}
+
+###
+
+PUT {{HospitalERP.API_HostAddress}}/api/appointments/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "patientID": 1,
+  "doctorID": 1,
+  "serviceID": 1,
+  "appointmentDateTime": "2024-12-25T14:00:00",
+  "status": "Completed"
+}
+
+###
+
+DELETE {{HospitalERP.API_HostAddress}}/api/appointments/1
+Authorization: Bearer {{Token}}
+
+###
+# Medical Records API
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/medical-records?pageNumber=1&pageSize=10
+Authorization: Bearer {{Token}}
+
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/medical-records/1
+Authorization: Bearer {{Token}}
+
+###
+
+POST {{HospitalERP.API_HostAddress}}/api/medical-records
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "patientID": 1,
+  "doctorID": 1,
+  "diagnosesID": 1,
+  "diagnoseDate": "2024-12-20"
+}
+
+###
+
+PUT {{HospitalERP.API_HostAddress}}/api/medical-records/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "recordID": 1,
+  "patientID": 1,
+  "doctorID": 1,
+  "diagnosesID": 1,
+  "diagnoseDate": "2024-12-20"
+}
+
+###
+
+DELETE {{HospitalERP.API_HostAddress}}/api/medical-records/1
+Authorization: Bearer {{Token}}
+
+###
+# Medications API
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/medications?pageNumber=1&pageSize=10
+Authorization: Bearer {{Token}}
+
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/medications/1
+Authorization: Bearer {{Token}}
+
+###
+
+POST {{HospitalERP.API_HostAddress}}/api/medications
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "barCode": "1234567890123",
+  "name": "Aspirin",
+  "description": "Pain reliever",
+  "cost": 10.50
+}
+
+###
+
+PUT {{HospitalERP.API_HostAddress}}/api/medications/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "medicationID": 1,
+  "barCode": "1234567890123",
+  "name": "Aspirin Updated",
+  "description": "Pain reliever",
+  "cost": 12.00
+}
+
+###
+
+DELETE {{HospitalERP.API_HostAddress}}/api/medications/1
+Authorization: Bearer {{Token}}
+
+###
+# Inventory API
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/inventory?pageNumber=1&pageSize=10
+Authorization: Bearer {{Token}}
+
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/inventory/1
+Authorization: Bearer {{Token}}
+
+###
+
+POST {{HospitalERP.API_HostAddress}}/api/inventory
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "medicationID": 1,
+  "quantity": 100,
+  "expiryDate": "2025-12-31"
+}
+
+###
+
+PUT {{HospitalERP.API_HostAddress}}/api/inventory/1
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "medicationID": 1,
+  "quantity": 150,
+  "expiryDate": "2025-12-31"
+}
+
+###
+# Invoices API
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/invoices?pageNumber=1&pageSize=10
+Authorization: Bearer {{Token}}
+
+###
+
+GET {{HospitalERP.API_HostAddress}}/api/invoices/1
+Authorization: Bearer {{Token}}
+
+###
+
+POST {{HospitalERP.API_HostAddress}}/api/invoices
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "patientID": 1,
+  "invoiceTypeID": 1,
+  "invoiceDate": "2024-12-20",
+  "paymentStatusID": 1,
+  "hospitalInvoiceItems": [
+    {
+      "serviceID": 1,
+      "lineTotal": 100.00
+    }
+  ],
+  "medicationInvoiceItems": [
+    {
+      "medicationID": 1,
+      "quantity": 2,
+      "lineTotal": 21.00
+    }
+  ]
+}
+
+###
+
+PUT {{HospitalERP.API_HostAddress}}/api/invoices/1/payment-status
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+  "paymentStatusID": 2,
+  "payDate": "2024-12-21"
+}
