@@ -1,0 +1,34 @@
+<div class="pharmacy-prescriptions-container">
+  <h1 class="text-3xl font-bold text-gray-800 mb-6">Prescriptions</h1>
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <p-table [value]="prescriptions" [paginator]="true" [rows]="10">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>ID</th>
+          <th>Patient</th>
+          <th>Medication</th>
+          <th>Quantity</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-prescription>
+        <tr>
+          <td>{{ prescription.id }}</td>
+          <td>{{ prescription.patient }}</td>
+          <td>{{ prescription.medication }}</td>
+          <td>{{ prescription.quantity }}</td>
+          <td>{{ prescription.date }}</td>
+          <td><p-tag [value]="prescription.status" [severity]="prescription.status === 'Filled' ? 'success' : 'warn'"></p-tag></td>
+          <td>
+            <div class="flex gap-2">
+              <button pButton pRipple type="button" icon="pi pi-check" class="p-button-text p-button-sm"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
