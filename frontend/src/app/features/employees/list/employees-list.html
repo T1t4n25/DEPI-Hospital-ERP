@@ -1,0 +1,61 @@
+<div class="employees-list-container">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800">Employees</h1>
+      <p class="text-gray-600 mt-1">Manage all employees</p>
+    </div>
+    <a routerLink="/employees/new" class="p-button p-button-primary">
+      <i class="pi pi-plus mr-2"></i>
+      Add Employee
+    </a>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div class="mb-4">
+      <span class="p-input-icon-left w-full">
+        <i class="pi pi-search"></i>
+        <input 
+          type="text" 
+          pInputText 
+          placeholder="Search employees..." 
+          [(ngModel)]="searchTerm"
+          class="w-full"
+        />
+      </span>
+    </div>
+
+    <p-table [value]="filteredEmployees" [paginator]="true" [rows]="10">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Department</th>
+          <th>Contact</th>
+          <th>Hire Date</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-employee>
+        <tr>
+          <td>{{ employee.id }}</td>
+          <td>{{ employee.firstName }} {{ employee.lastName }}</td>
+          <td><p-tag [value]="employee.role" severity="info"></p-tag></td>
+          <td>{{ employee.department }}</td>
+          <td>{{ employee.contactNumber }}</td>
+          <td>{{ employee.hireDate }}</td>
+          <td>
+            <div class="flex gap-2">
+              <a [routerLink]="['/employees', employee.id]" class="p-button p-button-text p-button-sm">
+                <i class="pi pi-eye"></i>
+              </a>
+              <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"></button>
+              <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
