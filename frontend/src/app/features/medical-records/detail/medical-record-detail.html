@@ -1,0 +1,38 @@
+<div class="medical-record-detail-container">
+  <div class="mb-6">
+    <a routerLink="/medical-records" class="text-primary-600 hover:text-primary-700 mb-2 inline-block">
+      <i class="pi pi-arrow-left mr-2"></i>Back to Medical Records
+    </a>
+    <h1 class="text-3xl font-bold text-gray-800">Medical Record Details</h1>
+  </div>
+
+  <p-card class="shadow-sm">
+    <div class="grid grid-cols-2 gap-6">
+      <div>
+        <label class="text-sm text-gray-600">Patient</label>
+        <p class="font-medium text-gray-800">{{ record.patient }}</p>
+      </div>
+      <div>
+        <label class="text-sm text-gray-600">Doctor</label>
+        <p class="font-medium text-gray-800">{{ record.doctor }}</p>
+      </div>
+      <div>
+        <label class="text-sm text-gray-600">Diagnosis</label>
+        <p class="font-medium text-gray-800">{{ record.diagnosis }}</p>
+      </div>
+      <div>
+        <label class="text-sm text-gray-600">Date</label>
+        <p class="font-medium text-gray-800">{{ record.date }}</p>
+      </div>
+      <div class="col-span-2">
+        <label class="text-sm text-gray-600">Treatment</label>
+        <p class="font-medium text-gray-800">{{ record.treatment }}</p>
+      </div>
+      <div class="col-span-2">
+        <label class="text-sm text-gray-600">Notes</label>
+        <p class="font-medium text-gray-800">{{ record.notes }}</p>
+      </div>
+    </div>
+  </p-card>
+</div>
+
