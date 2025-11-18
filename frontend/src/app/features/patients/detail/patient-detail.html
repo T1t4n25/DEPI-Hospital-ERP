@@ -1,0 +1,99 @@
+<div class="patient-detail-container">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <a routerLink="/patients" class="text-primary-600 hover:text-primary-700 mb-2 inline-block">
+        <i class="pi pi-arrow-left mr-2"></i>Back to Patients
+      </a>
+      <h1 class="text-3xl font-bold text-gray-800">{{ patient.firstName }} {{ patient.lastName }}</h1>
+      <p class="text-gray-600 mt-1">Patient ID: {{ patient.id }}</p>
+    </div>
+    <div class="flex gap-2">
+      <button pButton pRipple type="button" label="Edit" icon="pi pi-pencil" class="p-button-outlined"></button>
+      <button pButton pRipple type="button" label="New Appointment" icon="pi pi-calendar-plus" class="p-button-primary"></button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Patient Information -->
+      <p-card header="Patient Information" class="shadow-sm">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-sm text-gray-600">First Name</label>
+            <p class="font-medium text-gray-800">{{ patient.firstName }}</p>
+          </div>
+          <div>
+            <label class="text-sm text-gray-600">Last Name</label>
+            <p class="font-medium text-gray-800">{{ patient.lastName }}</p>
+          </div>
+          <div>
+            <label class="text-sm text-gray-600">Date of Birth</label>
+            <p class="font-medium text-gray-800">{{ patient.dateOfBirth }}</p>
+          </div>
+          <div>
+            <label class="text-sm text-gray-600">Gender</label>
+            <p class="font-medium text-gray-800">
+              <p-tag [value]="patient.gender" [severity]="patient.gender === 'Male' ? 'info' : 'success'"></p-tag>
+            </p>
+          </div>
+          <div>
+            <label class="text-sm text-gray-600">Blood Type</label>
+            <p class="font-medium text-gray-800">
+              <p-tag [value]="patient.bloodType" severity="danger"></p-tag>
+            </p>
+          </div>
+          <div>
+            <label class="text-sm text-gray-600">Contact Number</label>
+            <p class="font-medium text-gray-800">{{ patient.contactNumber }}</p>
+          </div>
+          <div class="col-span-2">
+            <label class="text-sm text-gray-600">Address</label>
+            <p class="font-medium text-gray-800">{{ patient.address }}</p>
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Appointments -->
+      <p-card header="Recent Appointments" class="shadow-sm">
+        <div class="space-y-4">
+          @for (appointment of appointments; track appointment.id) {
+            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+              <div>
+                <p class="font-medium text-gray-800">{{ appointment.date }}</p>
+                <p class="text-sm text-gray-600">{{ appointment.doctor }} - {{ appointment.service }}</p>
+              </div>
+              <p-tag [value]="appointment.status" [severity]="appointment.status === 'Completed' ? 'success' : 'info'"></p-tag>
+            </div>
+          }
+        </div>
+      </p-card>
+
+      <!-- Medical Records -->
+      <p-card header="Medical Records" class="shadow-sm">
+        <div class="space-y-4">
+          @for (record of medicalRecords; track record.id) {
+            <div class="p-4 border border-gray-200 rounded-lg">
+              <div class="flex items-center justify-between mb-2">
+                <p class="font-medium text-gray-800">{{ record.diagnosis }}</p>
+                <p class="text-sm text-gray-600">{{ record.date }}</p>
+              </div>
+              <p class="text-sm text-gray-600">Doctor: {{ record.doctor }}</p>
+            </div>
+          }
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Quick Actions Sidebar -->
+    <div class="space-y-6">
+      <p-card header="Quick Actions" class="shadow-sm">
+        <div class="space-y-2">
+          <button pButton pRipple type="button" label="New Appointment" icon="pi pi-calendar-plus" class="p-button-outlined w-full"></button>
+          <button pButton pRipple type="button" label="Add Medical Record" icon="pi pi-file-plus" class="p-button-outlined w-full"></button>
+          <button pButton pRipple type="button" label="Create Invoice" icon="pi pi-file-edit" class="p-button-outlined w-full"></button>
+        </div>
+      </p-card>
+    </div>
+  </div>
+</div>
+
