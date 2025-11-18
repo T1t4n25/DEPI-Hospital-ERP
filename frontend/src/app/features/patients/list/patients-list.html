@@ -1,0 +1,67 @@
+<div class="patients-list-container">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800">Patients</h1>
+      <p class="text-gray-600 mt-1">Manage all patient records</p>
+    </div>
+    <a routerLink="/patients/new" class="p-button p-button-primary">
+      <i class="pi pi-plus mr-2"></i>
+      Add New Patient
+    </a>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div class="mb-4">
+      <span class="p-input-icon-left w-full">
+        <i class="pi pi-search"></i>
+        <input 
+          type="text" 
+          pInputText 
+          placeholder="Search patients..." 
+          [(ngModel)]="searchTerm"
+          class="w-full"
+        />
+      </span>
+    </div>
+
+    <p-table [value]="filteredPatients" [paginator]="true" [rows]="10" [showCurrentPageReport]="true" 
+             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+             [rowsPerPageOptions]="[10, 25, 50]">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Date of Birth</th>
+          <th>Gender</th>
+          <th>Blood Type</th>
+          <th>Contact</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-patient>
+        <tr>
+          <td>{{ patient.id }}</td>
+          <td>{{ patient.firstName }} {{ patient.lastName }}</td>
+          <td>{{ patient.dateOfBirth }}</td>
+          <td>
+            <p-tag [value]="patient.gender" [severity]="patient.gender === 'Male' ? 'info' : 'success'"></p-tag>
+          </td>
+          <td>
+            <p-tag [value]="patient.bloodType" severity="danger"></p-tag>
+          </td>
+          <td>{{ patient.contactNumber }}</td>
+          <td>
+            <div class="flex gap-2">
+              <a [routerLink]="['/patients', patient.id]" class="p-button p-button-text p-button-sm">
+                <i class="pi pi-eye"></i>
+              </a>
+              <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"></button>
+              <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
