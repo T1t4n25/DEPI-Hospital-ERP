@@ -1,0 +1,45 @@
+<div class="invoices-list-container">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800">Invoices</h1>
+      <p class="text-gray-600 mt-1">Manage all invoices</p>
+    </div>
+    <a routerLink="/invoices/new" class="p-button p-button-primary">
+      <i class="pi pi-plus mr-2"></i>
+      New Invoice
+    </a>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <p-table [value]="invoices" [paginator]="true" [rows]="10">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>ID</th>
+          <th>Patient</th>
+          <th>Date</th>
+          <th>Total Amount</th>
+          <th>Payment Status</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-invoice>
+        <tr>
+          <td>{{ invoice.id }}</td>
+          <td>{{ invoice.patient }}</td>
+          <td>{{ invoice.date }}</td>
+          <td>{{ invoice.totalAmount }}</td>
+          <td><p-tag [value]="invoice.paymentStatus" [severity]="getStatusSeverity(invoice.paymentStatus)"></p-tag></td>
+          <td>
+            <div class="flex gap-2">
+              <a [routerLink]="['/invoices', invoice.id]" class="p-button p-button-text p-button-sm">
+                <i class="pi pi-eye"></i>
+              </a>
+              <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
