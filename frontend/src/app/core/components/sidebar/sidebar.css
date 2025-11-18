@@ -1,0 +1,21 @@
+.sidebar {
+  width: 260px;
+  transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: 70px;
+}
+
+.sidebar.collapsed .sidebar-header h2,
+.sidebar.collapsed .sidebar-nav span,
+.sidebar.collapsed .sidebar-footer {
+  display: none;
+}
+
+.sidebar-nav a.router-link-active {
+  background-color: rgb(224 242 254);
+  color: rgb(14 165 233);
+  font-weight: 500;
+}
+

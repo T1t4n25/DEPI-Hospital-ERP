@@ -1,0 +1,70 @@
+<aside [class.collapsed]="collapsed()" class="sidebar bg-white border-r border-gray-200 h-full flex flex-col">
+  <div class="sidebar-header p-4 border-b border-gray-200 flex items-center justify-between">
+    <h2 class="text-xl font-bold text-gray-800" *ngIf="!collapsed()">Hospital ERP</h2>
+    <button 
+      (click)="toggleCollapse()" 
+      class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+      [attr.aria-label]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+    >
+      <i [class]="collapsed() ? 'pi pi-angle-right' : 'pi pi-angle-left'" class="text-gray-600"></i>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav flex-1 overflow-y-auto p-2">
+    <ul class="space-y-1">
+      @for (item of menuItems; track item.label) {
+        <li>
+          @if (item.children && item.children.length > 0) {
+            <div>
+              <button
+                (click)="toggleMenu(item.label)"
+                class="w-full flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-left"
+                [class.bg-primary-50]="activeMenu() === item.label"
+              >
+                <i [class]="item.icon" class="text-lg"></i>
+                <span *ngIf="!collapsed()" class="flex-1">{{ item.label }}</span>
+                <i 
+                  *ngIf="!collapsed()"
+                  [class]="activeMenu() === item.label ? 'pi pi-angle-down' : 'pi pi-angle-right'"
+                  class="ml-auto"
+                ></i>
+              </button>
+              @if (activeMenu() === item.label && !collapsed()) {
+                <ul class="ml-6 mt-1 space-y-1">
+                  @for (child of item.children; track child.label) {
+                    <li>
+                      <a
+                        [routerLink]="child.route"
+                        routerLinkActive="bg-primary-100 text-primary-700"
+                        class="flex items-center gap-3 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                      >
+                        <i [class]="child.icon" class="text-sm"></i>
+                        <span>{{ child.label }}</span>
+                      </a>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          } @else {
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="bg-primary-100 text-primary-700"
+              class="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <i [class]="item.icon" class="text-lg"></i>
+              <span *ngIf="!collapsed()">{{ item.label }}</span>
+            </a>
+          }
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <div class="sidebar-footer p-4 border-t border-gray-200" *ngIf="!collapsed()">
+    <div class="text-xs text-gray-500">
+      <p>Hospital ERP v1.0</p>
+    </div>
+  </div>
+</aside>
+
