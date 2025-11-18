@@ -1,0 +1,48 @@
+<div class="employee-form-container">
+  <div class="mb-6">
+    <a routerLink="/employees" class="text-primary-600 hover:text-primary-700 mb-2 inline-block">
+      <i class="pi pi-arrow-left mr-2"></i>Back to Employees
+    </a>
+    <h1 class="text-3xl font-bold text-gray-800">Add New Employee</h1>
+  </div>
+
+  <p-card class="shadow-sm">
+    <form (ngSubmit)="onSubmit()" class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
+          <input type="text" pInputText [(ngModel)]="employee.firstName" name="firstName" class="w-full" required />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
+          <input type="text" pInputText [(ngModel)]="employee.lastName" name="lastName" class="w-full" required />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Role *</label>
+          <p-select [(ngModel)]="employee.role" name="role" [options]="roles" optionLabel="label" optionValue="value" placeholder="Select Role" class="w-full" required></p-select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Department *</label>
+          <p-select [(ngModel)]="employee.department" name="department" [options]="departments" optionLabel="label" optionValue="value" placeholder="Select Department" class="w-full" required></p-select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Contact Number *</label>
+          <input type="tel" pInputText [(ngModel)]="employee.contactNumber" name="contactNumber" class="w-full" required />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Hire Date *</label>
+          <p-datepicker [(ngModel)]="employee.hireDate" name="hireDate" [showIcon]="true" dateFormat="yy-mm-dd" class="w-full" required></p-datepicker>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Gender *</label>
+          <p-select [(ngModel)]="employee.gender" name="gender" [options]="genders" optionLabel="label" optionValue="value" placeholder="Select Gender" class="w-full" required></p-select>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+        <a routerLink="/employees" class="p-button p-button-outlined">Cancel</a>
+        <button pButton pRipple type="submit" label="Save Employee" icon="pi pi-check" class="p-button-primary"></button>
+      </div>
+    </form>
+  </p-card>
+</div>
+
