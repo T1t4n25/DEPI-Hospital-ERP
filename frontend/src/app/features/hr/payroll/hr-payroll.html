@@ -1,0 +1,35 @@
+<div class="hr-payroll-container">
+  <h1 class="text-3xl font-bold text-gray-800 mb-6">Payroll</h1>
+
+  <div class="mb-6">
+    <p-card header="Monthly Payroll Trend" class="shadow-sm">
+      <p-chart type="bar" [data]="payrollChartData" [options]="chartOptions" [style]="{'height': '300px'}"></p-chart>
+    </p-card>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <p-table [value]="payrollData" [paginator]="true" [rows]="10">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>ID</th>
+          <th>Employee</th>
+          <th>Salary</th>
+          <th>Deductions</th>
+          <th>Net Pay</th>
+          <th>Status</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-record>
+        <tr>
+          <td>{{ record.id }}</td>
+          <td>{{ record.employee }}</td>
+          <td>{{ record.salary }}</td>
+          <td>{{ record.deductions }}</td>
+          <td>{{ record.net }}</td>
+          <td><p-tag [value]="record.status" severity="success"></p-tag></td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
