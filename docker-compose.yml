@@ -6,11 +6,11 @@ services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2025-latest
     container_name: hospitalerp-sqlserver
-    env_file:
-      - HospitalERP.API/.env  # Optional: has defaults, warning if missing is harmless
+    # env_file: HospitalERP.API/.env  # Optional: uncomment to use .env file
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=${DB_PASSWORD:-YourStrong!Password123}
+      - MSSQL_SA_PASSWORD=${DB_PASSWORD:-YourStrongPassword123}
+      - MSSQL_USER=${DB_USER:-sa}
       - MSSQL_PID=Developer
     ports:
       - "${DB_PORT:-1433}:1433"
@@ -20,7 +20,7 @@ services:
     networks:
       - hospitalerp-network
     healthcheck:
-      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD:-YourStrong!Password123} -Q "SELECT 1" || exit 1
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD:-YourStrongPassword123} -C -Q "SELECT 1" || exit 1
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,8 +30,7 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     container_name: hospitalerp-keycloak
-    env_file:
-      - HospitalERP.API/.env  # Optional: has defaults, warning if missing is harmless
+    # env_file: HospitalERP.API/.env  # Optional: uncomment to use .env file
     environment:
       - KC_HOSTNAME_STRICT=false
       - KC_HOSTNAME_STRICT_HTTPS=false
@@ -40,7 +39,7 @@ services:
       - KC_METRICS_ENABLED=true
       - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN:-admin}
       - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD:-admin}
-    command: start-dev
+    command: start-dev --health-enabled=true
     ports:
       - "${KEYCLOAK_PORT:-8080}:8080"
     volumes:
@@ -51,19 +50,18 @@ services:
       - hospitalerp-network
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+      interval: 10s
+      timeout: 5s
+      retries: 6
       start_period: 60s
     restart: unless-stopped
 
   api:
     build:
       context: ./HospitalERP.API
-      dockerfile: Dockerfile
+      dockerfile: ./Dockerfile
     container_name: hospitalerp-api
-    env_file:
-      - HospitalERP.API/.env  # Optional: has defaults, warning if missing is harmless
+    # env_file: HospitalERP.API/.env  # Optional: uncomment to use .env file
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
       - ASPNETCORE_URLS=http://+:80
@@ -101,12 +99,10 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: ./Dockerfile
     container_name: hospitalerp-frontend
-    # env_file is optional - all variables have defaults in environment section
-    # Only load .env files if they exist (docker-compose will warn if missing but continue)
-    env_file:
-      - HospitalERP.API/.env  # Optional: only loaded if file exists, has defaults
+    # env_file: HospitalERP.API/.env  # Optional: uncomment to use .env file
+    # All variables have defaults below - works without .env files
     environment:
       - NGINX_HOST=localhost
       - NGINX_PORT=80
