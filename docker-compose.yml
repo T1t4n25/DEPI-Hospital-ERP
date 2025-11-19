@@ -1,0 +1,155 @@
+version: '3.8'
+
+services:
+  # ========================================
+  # BACKEND SERVICES (from HospitalERP.API)
+  # ========================================
+  
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    container_name: hospitalerp-sqlserver
+    env_file:
+      - HospitalERP.API/.env
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${DB_PASSWORD}
+      - MSSQL_PID=Developer
+    ports:
+      - "${DB_PORT:-1433}:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./HospitalERP.API/Scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - hospitalerp-network
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD} -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: hospitalerp-keycloak
+    env_file:
+      - HospitalERP.API/.env
+    environment:
+      - KC_HOSTNAME_STRICT=false
+      - KC_HOSTNAME_STRICT_HTTPS=false
+      - KC_HTTP_ENABLED=true
+      - KC_HEALTH_ENABLED=true
+      - KC_METRICS_ENABLED=true
+      - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN:-admin}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD:-admin}
+    command: start-dev
+    ports:
+      - "${KEYCLOAK_PORT:-8080}:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - keycloak_providers:/opt/keycloak/providers
+      - keycloak_themes:/opt/keycloak/themes
+    networks:
+      - hospitalerp-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./HospitalERP.API
+      dockerfile: Dockerfile
+    container_name: hospitalerp-api
+    env_file:
+      - HospitalERP.API/.env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - DB_SERVER=sqlserver
+      - DB_DATABASE=${DB_DATABASE:-HospitalERP}
+      - DB_USER=${DB_USER:-sa}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - KEYCLOAK_AUTHORITY=${KEYCLOAK_AUTHORITY:-http://keycloak:8080/realms/hospital-erp}
+      - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE:-hospital-erp-api,account}
+      - KEYCLOAK_REQUIRE_HTTPS=false
+    ports:
+      - "${API_PORT:-5037}:80"
+    volumes:
+      - ./HospitalERP.API/appsettings.json:/app/appsettings.json:ro
+      - ./HospitalERP.API/appsettings.Development.json:/app/appsettings.Development.json:ro
+    networks:
+      - hospitalerp-network
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/swagger || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+  # ========================================
+  # FRONTEND SERVICE
+  # ========================================
+  
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hospitalerp-frontend
+    env_file:
+      - frontend/.env
+      - HospitalERP.API/.env  # Share API env vars
+    environment:
+      - NGINX_HOST=localhost
+      - NGINX_PORT=80
+      # Frontend can access backend services by container name within Docker network
+      # For browser access, these should point to localhost with mapped ports
+      - API_URL=${API_URL:-http://localhost:5037}
+      - KEYCLOAK_URL=${KEYCLOAK_URL:-http://localhost:8080}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM:-hospital-erp}
+      - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID:-hospital-frontend}
+    ports:
+      - "${FRONTEND_PORT:-4200}:80"
+    volumes:
+      # Optional: mount nginx config for customization
+      # - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - hospitalerp-network
+    depends_on:
+      api:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+# ========================================
+# NETWORKS
+# ========================================
+networks:
+  hospitalerp-network:
+    driver: bridge
+
+# ========================================
+# VOLUMES
+# ========================================
+volumes:
+  sqlserver_data:
+  keycloak_data:
+  keycloak_providers:
+  keycloak_themes:
+
