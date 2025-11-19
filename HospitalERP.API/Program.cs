@@ -283,13 +283,35 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var context = scope.ServiceProvider.GetRequiredService<HospitalDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation("Connection String: {ConnectionString}", connectionString);
+    // Retry connection with exponential backoff
+    var maxRetries = 10;
+    var delay = 2000; // Start with 2 seconds
+    for (int i = 0; i < maxRetries; i++)
+    {
+        try
+        {
+            logger.LogInformation("Attempting to connect to database (attempt {Attempt}/{MaxRetries})...", i + 1, maxRetries);
+            await context.Database.CanConnectAsync();
+            logger.LogInformation("Database connection successful!");
+            break;
+        }
+        catch (Exception ex) when (i < maxRetries - 1)
+        {
+            logger.LogWarning(ex, "Database not ready yet. Retrying in {Delay}ms...", delay);
+            await Task.Delay(delay);
+            delay = Math.Min(delay * 2, 10000); // Exponential backoff, max 10 seconds
+        }
+    }
+    
     try
     {
         await DbInitializer.SeedAsync(context);
+        logger.LogInformation("Database seeding completed successfully.");
     }
     catch (Exception ex)
     {
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while seeding the database.");
     }
 }
