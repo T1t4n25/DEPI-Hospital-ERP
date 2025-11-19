@@ -1,255 +1,19 @@
 # ============================================================
-#  Hospital ERP - Vertical Slice Architecture (Cursor Rules)
-# ============================================================
-# Purpose:
-# Enforce consistent vertical slicing, CQRS, DTO structure,
-# Keycloak security, and domain-driven modularity.
-# Cursor AI and all developers MUST follow these rules.
-#
-# Project:
-# - .NET 9 Web API
-# - Vertical Feature Slices
-# - Light CQRS (Commands + Queries folders)
-# - EF Core
-# - SQL Server
-# - Keycloak JWT
-# - Angular Frontend
-# ============================================================
-
-rules:
-
-  # ------------------------
-  # GLOBAL ARCHITECTURE RULES
-  # ------------------------
-  - The project MUST be structured using **Vertical Slices**.
-    All code MUST go inside `/Features/<FeatureName>/`.
-
-  - Allowed feature modules:
-      Patients
-      Appointments
-      MedicalRecords
-      Employees
-      Departments
-      Medications
-      Inventory
-      Services
-      Invoices
-      Users (Admin)
-    No new modules can be added without documentation.
-
-  - Each feature MUST contain:
-      /Commands
-      /Queries
-      /Dtos
-      /Mappings
-      /Validators (optional)
-      /Models (optional business rules)
-      <FeatureName>Controller.cs
-
-  - NO global Services folder.
-    NO global DTO folder.
-    NO global Repository folder.
-    NO logic outside its feature folder.
-
-  - Every API endpoint MUST correspond to:
-      * A Query (for GET operations)
-      * A Command (for POST/PUT/PATCH/DELETE)
-
-  - Each Command/Query MUST be handled by a corresponding Handler class.
-
-  - All Handlers MUST use `HospitalDbContext` via DI.
-
-  - All returned responses MUST use:
-      - DTOs (never EF entities)
-      - `PaginatedResponse<T>` for paged GET lists
-
-  - Use `AsNoTracking()` for all GET queries.
-
-  - Commands MUST validate foreign keys and return NotFound when invalid.
-
-  - Each feature MUST have a dedicated AutoMapper profile file in `/Mappings`.
-
-  - Controller methods MUST be thin (1–5 lines) and call Mediator.
-
-  # ------------------------
-  # CONTROLLER GENERATION RULES
-  # ------------------------
-  - Controller File Location:
-      /Features/<FeatureName>/<FeatureName>Controller.cs
-
-  - Controller Naming:
-      <FeatureName>Controller
-
-  - Usage:
-      - Inject IMediator
-      - Route pattern: [Route("api/<feature-name>")]
-      - Always use [ApiController]
-
-  - Each endpoint MUST:
-      * return IActionResult
-      * wrap logic in Mediator.Send()
-      * use Commands/Queries only
-
-  - Authorization must use Keycloak roles:
-      [Authorize(Roles = "Admin")]
-      [Authorize(Roles = "Doctor")]
-      [Authorize(Roles = "Receptionist")]
-      [Authorize(Roles = "Pharmacist")]
-      [Authorize(Roles = "Accountant")]
-
-  - Feature-specific security:
-      Patients → Admin, Doctor, Receptionist
-      MedicalRecords → Admin, Doctor
-      Appointments → Admin, Doctor, Receptionist
-      Medications → Admin, Pharmacist
-      Inventory → Admin, Pharmacist
-      Invoices → Admin, Accountant, Receptionist
-
-  # ------------------------
-  # COMMANDS STRUCTURE
-  # ------------------------
-  command-pattern: |
-      namespace HospitalERP.API.Features.{{feature}}.Commands;
-
-      public record {{CommandName}} : IRequest<{{ReturnType}}>
-      {
-          // Properties
-      }
-
-      public class {{CommandName}}Handler 
-          : IRequestHandler<{{CommandName}}, {{ReturnType}}>
-      {
-          private readonly HospitalDbContext _context;
-          private readonly IMapper _mapper;
-
-          public {{CommandName}}Handler(HospitalDbContext context, IMapper mapper)
-          {
-              _context = context;
-              _mapper = mapper;
-          }
-
-          public async Task<{{ReturnType}}> Handle(
-              {{CommandName}} request, 
-              CancellationToken cancellationToken
-          )
-          {
-              // Business Logic Here
-          }
-      }
-
-  # ------------------------
-  # QUERIES STRUCTURE
-  # ------------------------
-  query-pattern: |
-      namespace HospitalERP.API.Features.{{feature}}.Queries;
-
-      public record {{QueryName}} : IRequest<{{ReturnType}}>
-      {
-          // Query Parameters
-      }
-
-      public class {{QueryName}}Handler 
-          : IRequestHandler<{{QueryName}}, {{ReturnType}}>
-      {
-          private readonly HospitalDbContext _context;
-          private readonly IMapper _mapper;
-
-          public {{QueryName}}Handler(HospitalDbContext context, IMapper mapper)
-          {
-              _context = context;
-              _mapper = mapper;
-          }
-
-          public async Task<{{ReturnType}}> Handle(
-              {{QueryName}} request, 
-              CancellationToken cancellationToken
-          )
-          {
-              var q = _context.{{DbSet}}
-                  .AsNoTracking()
-                  // Filters
-                  .AsQueryable();
-
-              return new PaginatedResponse<{{DtoName}}>(...);
-          }
-      }
-
-  # ------------------------
-  # DTO RULES
-  # ------------------------
-  - DTOs MUST reside in:
-      /Features/<FeatureName>/Dtos/
-
-  - Required DTOs:
-      Create<Feature>Dto
-      Update<Feature>Dto
-      <Feature>ListDto
-      <Feature>DetailDto
-
-  - Update DTO extends Create DTO.
-
-  - List DTO = minimal subset
-    Detail DTO = full relational info
-
-  # ------------------------
-  # VALIDATION RULES
-  # ------------------------
-  - All Create/Update DTOs MUST have FluentValidation validators.
-  - Validators go in:
-      /Features/<FeatureName>/Validators/
-
-  # ------------------------
-  # MAPPING RULES
-  # ------------------------
-  - Every feature MUST have:
-      /Features/<FeatureName>/Mappings/<Feature>Profile.cs
-
-  - AutoMapper profiles MUST map:
-      Entity → Dto
-      Dto → Entity
-
-  # ------------------------
-  # DATABASE RULES
-  # ------------------------
-  - Every relation MUST have foreign key constraints.
-  - Use HasIndex() for search filters.
-  - All domain models MUST be in /Models/Entities.
-
-  # ------------------------
-  # COMMON INFRA RULES
-  # ------------------------
-  - Pagination classes go in /Common/Pagination/
-  - QueryParams.cs MUST be reusable across all features.
-  - Exceptions in /Common/Exceptions/
-
-  # ------------------------
-  # SECURITY RULES (KEYCLOAK)
-  # ------------------------
-  - All endpoints MUST use [Authorize].
-  - Admin endpoints MUST require role Admin.
-  - User management endpoints reside ONLY in /Features/Users/.
-
-
-
-
-
-
-
-# ============================================================
 #  Hospital ERP - Angular Frontend Architecture (Cursor Rules)
 # ============================================================
 # Purpose:
-# Enforce consistent feature-based structure, component patterns,
-# Tailwind CSS styling, Keycloak integration, and API communication.
+# Enforce consistent feature-based structure, modern Angular 20+ patterns,
+# performance optimizations, accessibility, and best practices.
 # Cursor AI and all developers MUST follow these rules.
 #
 # Project:
 # - Angular 20+
-# - Feature-based Modules (matching backend slices)
-# - Tailwind CSS for styling
-# - RxJS for reactive programming
+# - Feature-based architecture (matching backend slices)
+# - Tailwind CSS + PrimeNG for styling
+# - RxJS 7.8+ for reactive programming
+# - Signals for reactive state
 # - Keycloak JWT authentication
-# - Standalone components
+# - Standalone components only
 # ============================================================
 
 rules:
@@ -257,7 +21,7 @@ rules:
   # ------------------------
   # GLOBAL ARCHITECTURE RULES
   # ------------------------
-  - The project MUST be structured using **Feature Modules**.
+  - The project MUST be structured using **Feature-based Architecture**.
     All feature code MUST go inside `/app/features/<feature-name>/`.
 
   - Allowed feature modules (matching backend):
@@ -271,35 +35,49 @@ rules:
       services
       invoices
       users (admin)
+      dashboard
+      hr (human resources)
+      pharmacy
     No new modules can be added without documentation.
 
   - Each feature MUST contain:
-      /components
-      /services
-      /models
-      /guards (optional, for route protection)
-      /interceptors (optional, feature-specific)
+      /components/
+      /services/
+      /models/
+      /guards/ (optional, feature-specific route protection)
+      /interceptors/ (optional, feature-specific HTTP interceptors)
       <feature-name>.routes.ts
 
-  - Shared/common code MUST go in:
+  - Core/shared infrastructure MUST go in:
+      /app/core/
+        /guards (app-wide guards: auth, role)
+        /interceptors (app-wide HTTP interceptors)
+        /services (app-wide services: auth, notification)
+        /models (app-wide models: user, permissions)
+        /constants (app-wide constants)
+        /utils (app-wide utilities)
+
+  - Shared UI components MUST go in:
       /app/shared/
         /components (reusable UI components)
-        /directives
-        /pipes
-        /interfaces
-        /utils
-        /constants
-        /validators
+        /directives (custom directives)
+        /pipes (custom pipes)
+        /interfaces (shared interfaces)
+        /types (shared types)
+        /utils (shared utilities)
+        /validators (custom validators)
+        /constants (shared constants)
 
-  - NO global services folder outside features.
-    NO global models folder outside features.
-    Feature-specific logic MUST stay in its feature folder.
+  - NO global services folder outside features/core/shared.
+  - NO global models folder outside features/core/shared.
+  - Feature-specific logic MUST stay in its feature folder.
+  - Core/shared logic MUST stay in core/shared folders.
 
   - All components MUST be standalone.
-    Use `imports: []` array in component decorator.
+    NEVER use NgModules. Use `imports: []` array in component decorator.
 
   - All API communication MUST go through feature services.
-    Services MUST use HttpClient and return Observables.
+    Services MUST use HttpClient and return Observables (or signals wrapping Observables).
 
   # ------------------------
   # FEATURE STRUCTURE PATTERN
@@ -311,22 +89,26 @@ rules:
             <feature-name>-list.component.ts
             <feature-name>-list.component.html
             <feature-name>-list.component.css
+            <feature-name>-list.component.spec.ts
           <feature-name>-detail/
             <feature-name>-detail.component.ts
             <feature-name>-detail.component.html
             <feature-name>-detail.component.css
+            <feature-name>-detail.component.spec.ts
           <feature-name>-form/
             <feature-name>-form.component.ts
             <feature-name>-form.component.html
             <feature-name>-form.component.css
+            <feature-name>-form.component.spec.ts
         /services/
           <feature-name>.service.ts
+          <feature-name>.service.spec.ts
         /models/
           create-<feature-name>.model.ts
           update-<feature-name>.model.ts
           <feature-name>-list.model.ts
           <feature-name>-detail.model.ts
-          paginated-response.model.ts
+          index.ts (barrel export)
         <feature-name>.routes.ts
 
   # ------------------------
@@ -336,31 +118,91 @@ rules:
       /app/features/<feature-name>/components/<component-name>/
 
   - Component Naming:
-      kebab-case for folders/files
-      PascalCase for class names
-      Example: patient-list.component.ts → PatientListComponent
+      - Folders/files: kebab-case
+      - Class names: PascalCase
+      - Example: patient-list.component.ts → PatientListComponent
 
-  - Component Structure:
+  - Component Structure (MANDATORY PATTERN):
+      import { Component, signal, computed, inject, ChangeDetectionStrategy, OnInit, effect } from '@angular/core';
+      import { CommonModule } from '@angular/common';
+      
+      @Component({
+        selector: 'app-<component-name>',
+        standalone: true,
+        imports: [CommonModule, /* other imports */],
+        templateUrl: './<component-name>.component.html',
+        styleUrl: './<component-name>.component.css',
+        changeDetection: ChangeDetectionStrategy.OnPush
+      })
+      export class <ComponentName>Component implements OnInit {
+        // Inject dependencies FIRST (use inject() function)
+        private readonly service = inject(<ServiceName>Service);
+        private readonly router = inject(Router);
+        private readonly route = inject(ActivatedRoute);
+        
+        // Signals for reactive state
+        readonly loading = signal<boolean>(false);
+        readonly error = signal<string | null>(null);
+        readonly data = signal<Model[]>([]);
+        
+        // Computed signals for derived state
+        readonly filteredData = computed(() => {
+          const items = this.data();
+          const search = this.searchTerm();
+          return items.filter(/* filter logic */);
+        });
+        
+        // Form state (if needed)
+        readonly form = inject(FormBuilder).group({ /* ... */ });
+        
+        ngOnInit() {
+          // Load initial data
+        }
+      }
+
+  - Component Requirements:
       - MUST be standalone
       - MUST use OnPush change detection strategy
-      - MUST use signals for reactive state
+      - MUST use inject() function for DI (Angular 20+)
+      - MUST use signals for component state
+      - MUST use computed() for derived state
+      - MUST use effect() sparingly (only for side effects)
       - Template MUST use Tailwind CSS classes
       - NO inline styles (use Tailwind utility classes)
+      - MUST unsubscribe from Observables (use takeUntilDestroyed or async pipe)
 
   - Component Template Rules:
       - Use semantic HTML5 elements
-      - Use Tailwind CSS for all styling
-      - NO <style> tags in components (use component.css for custom Tailwind @apply)
-      - Use Angular directives (ngIf, ngFor, ngSwitch) with proper syntax
-      - Use async pipe for Observables in templates
+      - Use Tailwind CSS + PrimeNG for styling
+      - NO <style> tags (use component.css for @apply directives only)
+      - Use Angular control flow syntax (@if, @for, @switch)
+      - Use async pipe for Observables (auto-unsubscribe)
+      - Use trackBy function in @for loops for performance
+      - Use signals with () syntax in templates
+      - Add ARIA labels for accessibility
+      - Use loading states and error handling in templates
+
+  - Component Template Pattern:
+      @if (loading()) {
+        <app-loading-spinner />
+      } @else if (error()) {
+        <app-error-message [message]="error()" />
+      } @else {
+        <div class="space-y-4">
+          @for (item of filteredData(); track item.id) {
+            <!-- item template -->
+          }
+        </div>
+      }
 
   # ------------------------
   # SERVICE GENERATION RULES
   # ------------------------
   service-pattern: |
       import { Injectable, inject } from '@angular/core';
-      import { HttpClient, HttpParams } from '@angular/common/http';
-      import { Observable } from 'rxjs';
+      import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
+      import { Observable, throwError, of } from 'rxjs';
+      import { catchError, retry, shareReplay, map } from 'rxjs/operators';
       import { environment } from '@environments/environment';
       import { PaginatedResponse } from './models/paginated-response.model';
       import { {{Feature}}ListModel } from './models/{{feature}}-list.model';
@@ -373,24 +215,92 @@ rules:
         private readonly http = inject(HttpClient);
         private readonly apiUrl = `${environment.apiUrl}/api/{{feature-name}}`;
 
+        // Cache for frequently accessed data (optional)
+        private readonly cache$ = new Map<string, Observable<any>>();
+
         getAll(params?: HttpParams): Observable<PaginatedResponse<{{Feature}}ListModel>> {
-          return this.http.get<PaginatedResponse<{{Feature}}ListModel>>(this.apiUrl, { params });
+          const cacheKey = `all-${params?.toString() || 'default'}`;
+          
+          if (this.cache$.has(cacheKey)) {
+            return this.cache$.get(cacheKey)!;
+          }
+
+          const request$ = this.http.get<PaginatedResponse<{{Feature}}ListModel>>(this.apiUrl, { params })
+            .pipe(
+              retry(2), // Retry failed requests up to 2 times
+              shareReplay(1), // Cache the result
+              catchError(this.handleError.bind(this))
+            );
+
+          this.cache$.set(cacheKey, request$);
+          return request$;
         }
 
         getById(id: number): Observable<{{Feature}}DetailModel> {
-          return this.http.get<{{Feature}}DetailModel>(`${this.apiUrl}/${id}`);
+          const cacheKey = `id-${id}`;
+          
+          if (this.cache$.has(cacheKey)) {
+            return this.cache$.get(cacheKey)!;
+          }
+
+          const request$ = this.http.get<{{Feature}}DetailModel>(`${this.apiUrl}/${id}`)
+            .pipe(
+              retry(2),
+              shareReplay(1),
+              catchError(this.handleError.bind(this))
+            );
+
+          this.cache$.set(cacheKey, request$);
+          return request$;
         }
 
         create(data: Create{{Feature}}Model): Observable<{{Feature}}DetailModel> {
-          return this.http.post<{{Feature}}DetailModel>(this.apiUrl, data);
+          return this.http.post<{{Feature}}DetailModel>(this.apiUrl, data)
+            .pipe(
+              catchError(this.handleError.bind(this))
+            );
         }
 
         update(id: number, data: Update{{Feature}}Model): Observable<{{Feature}}DetailModel> {
-          return this.http.put<{{Feature}}DetailModel>(`${this.apiUrl}/${id}`, data);
+          return this.http.put<{{Feature}}DetailModel>(`${this.apiUrl}/${id}`, data)
+            .pipe(
+              catchError(this.handleError.bind(this))
+            );
         }
 
         delete(id: number): Observable<void> {
-          return this.http.delete<void>(`${this.apiUrl}/${id}`);
+          return this.http.delete<void>(`${this.apiUrl}/${id}`)
+            .pipe(
+              catchError(this.handleError.bind(this))
+            );
+        }
+
+        // Clear cache (call after create/update/delete)
+        clearCache(): void {
+          this.cache$.clear();
+        }
+
+        // Clear specific cache entry
+        clearCacheEntry(key: string): void {
+          this.cache$.delete(key);
+        }
+
+        private handleError(error: HttpErrorResponse): Observable<never> {
+          let errorMessage = 'An unknown error occurred';
+          
+          if (error.error instanceof ErrorEvent) {
+            // Client-side error
+            errorMessage = `Error: ${error.error.message}`;
+          } else {
+            // Server-side error
+            errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+            if (error.error?.message) {
+              errorMessage = error.error.message;
+            }
+          }
+          
+          console.error('Service Error:', errorMessage);
+          return throwError(() => new Error(errorMessage));
         }
       }
 
@@ -401,57 +311,214 @@ rules:
       /app/features/<feature-name>/services/<feature-name>.service.ts
 
   - All services MUST:
-      * Use inject() function (Angular 20+ pattern)
+      * Use inject() function (Angular 20+)
       * Return Observables (not Promises)
       * Use environment.apiUrl for base URL
       * Handle HTTP params for pagination/filtering
       * Use proper TypeScript types (models)
+      * Implement error handling with catchError
+      * Use retry operator for transient failures
+      * Consider caching with shareReplay for frequently accessed data
+      * Clear cache on mutations (create/update/delete)
 
   # ------------------------
-  # MODEL/INTERFACE RULES
+  # STATE MANAGEMENT RULES
   # ------------------------
-  - Models MUST match backend DTOs exactly.
-    Model Location: /app/features/<feature-name>/models/
+  - Use Angular Signals for component-level reactive state.
+    Use RxJS Observables for async data (API calls).
 
-  - Required Models per feature:
-      create-<feature-name>.model.ts
-      update-<feature-name>.model.ts
-      <feature-name>-list.model.ts
-      <feature-name>-detail.model.ts
-      paginated-response.model.ts (shared)
+  - Signal Usage Pattern:
+      - Use signal() for mutable state: readonly items = signal<Model[]>([]);
+      - Use computed() for derived state: readonly total = computed(() => this.items().length);
+      - Use effect() ONLY for side effects (logging, syncing with external systems)
+      - Update signals with .set(), .update(), or .mutate()
 
-  - Model Naming:
-      PascalCase for interfaces/types
-      Example: PatientListModel, CreatePatientModel
-
-  - Model Structure:
-      export interface {{Feature}}ListModel {
-        id: number;
-        // Minimal fields for list view
+  - Component State Pattern:
+      export class ListComponent {
+        // Loading and error states
+        readonly loading = signal<boolean>(false);
+        readonly error = signal<string | null>(null);
+        
+        // Data state
+        readonly items = signal<Model[]>([]);
+        readonly selectedId = signal<number | null>(null);
+        
+        // UI state
+        readonly searchTerm = signal<string>('');
+        readonly currentPage = signal<number>(1);
+        readonly pageSize = signal<number>(10);
+        
+        // Computed state
+        readonly filteredItems = computed(() => {
+          const items = this.items();
+          const search = this.searchTerm().toLowerCase();
+          return items.filter(item => 
+            item.name.toLowerCase().includes(search)
+          );
+        });
+        
+        readonly paginatedItems = computed(() => {
+          const items = this.filteredItems();
+          const page = this.currentPage();
+          const size = this.pageSize();
+          const start = (page - 1) * size;
+          return items.slice(start, start + size);
+        });
       }
 
-      export interface {{Feature}}DetailModel {
-        id: number;
-        // Full fields including relations
+  - Service State:
+      - Services return Observables (not store state)
+      - Use shareReplay(1) for caching frequently accessed data
+      - Use BehaviorSubject ONLY for cross-component state (consider Signals instead)
+      - Clear cache appropriately (after mutations)
+
+  - Global State:
+      - Use Signals for global state when possible
+      - Consider RxJS Subjects only if complex async state is needed
+      - Keep global state minimal (user, auth, theme, etc.)
+
+  # ------------------------
+  # RXJS BEST PRACTICES
+  # ------------------------
+  - Use RxJS operators properly:
+      - map() for transformations
+      - filter() for filtering
+      - debounceTime() for search inputs
+      - distinctUntilChanged() to prevent duplicate emissions
+      - catchError() for error handling
+      - retry() for transient failures
+      - shareReplay() for caching
+      - takeUntilDestroyed() for cleanup (Angular 16+)
+      - switchMap() for cancelling previous requests
+      - combineLatest() for combining multiple streams
+
+  - Observable Pattern for API Calls:
+      loadData(): void {
+        this.loading.set(true);
+        this.error.set(null);
+        
+        this.service.getAll()
+          .pipe(
+            takeUntilDestroyed(), // Auto-unsubscribe on component destroy
+            catchError(err => {
+              this.error.set(err.message);
+              return of([]); // Return empty array on error
+            })
+          )
+          .subscribe({
+            next: (data) => {
+              this.items.set(data);
+              this.loading.set(false);
+            },
+            error: (err) => {
+              this.error.set(err.message);
+              this.loading.set(false);
+            }
+          });
       }
 
-      export interface Create{{Feature}}Model {
-        // Fields matching backend CreateDto
+  - NEVER subscribe without unsubscribing (unless using async pipe or takeUntilDestroyed)
+
+  # ------------------------
+  # FORM HANDLING RULES
+  # ------------------------
+  - Use Reactive Forms ONLY (FormBuilder, FormGroup, FormControl).
+    NO template-driven forms.
+
+  - Form Component Pattern:
+      import { Component, inject, signal } from '@angular/core';
+      import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+      
+      @Component({
+        selector: 'app-form',
+        standalone: true,
+        imports: [ReactiveFormsModule, /* ... */],
+        changeDetection: ChangeDetectionStrategy.OnPush
+      })
+      export class FormComponent {
+        private readonly fb = inject(FormBuilder);
+        private readonly service = inject(Service);
+        private readonly router = inject(Router);
+        private readonly route = inject(ActivatedRoute);
+        
+        readonly loading = signal<boolean>(false);
+        readonly error = signal<string | null>(null);
+        
+        form = this.fb.group({
+          name: ['', [Validators.required, Validators.minLength(3)]],
+          email: ['', [Validators.required, Validators.email]],
+          // ... other fields
+        });
+
+        // Computed for form validity
+        readonly isFormValid = computed(() => this.form.valid);
+
+        onSubmit(): void {
+          if (this.form.valid) {
+            this.loading.set(true);
+            this.error.set(null);
+            
+            const formValue = this.form.value;
+            const request$ = this.route.snapshot.paramMap.has('id')
+              ? this.service.update(id, formValue)
+              : this.service.create(formValue);
+            
+            request$
+              .pipe(takeUntilDestroyed())
+              .subscribe({
+                next: () => {
+                  this.loading.set(false);
+                  this.router.navigate(['..'], { relativeTo: this.route });
+                },
+                error: (err) => {
+                  this.error.set(err.message);
+                  this.loading.set(false);
+                }
+              });
+          } else {
+            this.form.markAllAsTouched();
+          }
+        }
       }
 
-      export interface Update{{Feature}}Model extends Create{{Feature}}Model {
-        id: number;
-      }
+  - Form Validation:
+      - Match backend validation rules exactly
+      - Show error messages below fields
+      - Use Tailwind error styling (text-red-600, border-red-500)
+      - Disable submit button when form is invalid or loading
+      - Mark fields as touched on submit
+      - Use async validators for server-side validation
 
-  - Shared Pagination Model:
-      /app/shared/interfaces/paginated-response.model.ts
-      export interface PaginatedResponse<T> {
-        items: T[];
-        totalCount: number;
-        pageNumber: number;
-        pageSize: number;
-        totalPages: number;
-      }
+  - Form Template Pattern:
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="space-y-4">
+          <div>
+            <label for="name" class="block text-sm font-medium">Name</label>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              class="mt-1 block w-full rounded-md border-gray-300"
+              [class.border-red-500]="form.get('name')?.invalid && form.get('name')?.touched"
+            />
+            @if (form.get('name')?.invalid && form.get('name')?.touched) {
+              <p class="mt-1 text-sm text-red-600">
+                @if (form.get('name')?.errors?.['required']) {
+                  Name is required
+                }
+              </p>
+            }
+          </div>
+          
+          <button
+            type="submit"
+            [disabled]="!isFormValid() || loading()"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md disabled:opacity-50"
+          >
+            {{ loading() ? 'Saving...' : 'Save' }}
+          </button>
+        </div>
+      </form>
 
   # ------------------------
   # ROUTING RULES
@@ -459,7 +526,11 @@ rules:
   - Route File Location:
       /app/features/<feature-name>/<feature-name>.routes.ts
 
-  - Route Configuration:
+  - Route Configuration Pattern:
+      import { Routes } from '@angular/router';
+      import { AuthGuard } from '@core/guards/auth.guard';
+      import { RoleGuard } from '@core/guards/role.guard';
+
       export const {{FEATURE}}_ROUTES: Routes = [
         {
           path: '',
@@ -489,119 +560,199 @@ rules:
 
   - Main App Routes:
       /app/app.routes.ts
-      Use lazy loading: loadChildren: () => import('./features/patients/patients.routes').then(m => m.PATIENTS_ROUTES)
+      MUST use lazy loading:
+      export const routes: Routes = [
+        {
+          path: 'patients',
+          loadChildren: () => import('./features/patients/patients.routes').then(m => m.PATIENTS_ROUTES)
+        },
+        // ... other routes
+      ];
 
   - Route Naming:
-      kebab-case for paths
-      Example: /patients, /medical-records, /appointments
+      - Use kebab-case for paths
+      - Example: /patients, /medical-records, /appointments
+      - Use RESTful patterns: list, new, :id, :id/edit
+
+  - Route Guards:
+      - Use AuthGuard for authentication checks
+      - Use RoleGuard for authorization checks
+      - Guards MUST return Observable<boolean> | Promise<boolean> | boolean
+      - Redirect to login if not authenticated
 
   # ------------------------
-  # TAILWIND CSS STYLING RULES
+  # PERFORMANCE OPTIMIZATION RULES
   # ------------------------
-  - ALL styling MUST use Tailwind CSS utility classes.
-    NO custom CSS unless absolutely necessary.
+  - Change Detection:
+      - MUST use OnPush change detection for ALL components
+      - Use signals for reactive updates (triggers change detection automatically)
+      - Use async pipe for Observables (triggers change detection)
 
-  - Use Tailwind Design System:
-      - Colors: Use theme colors (primary, secondary, success, danger, warning, info)
-      - Spacing: Use Tailwind spacing scale (p-4, m-2, gap-4, etc.)
-      - Typography: Use Tailwind typography classes (text-lg, font-semibold, etc.)
-      - Layout: Use Flexbox/Grid utilities (flex, grid, items-center, justify-between)
+  - List Rendering:
+      - ALWAYS use trackBy function in @for loops
+      - Example: @for (item of items(); track item.id) { }
+      - Implement virtual scrolling for lists > 100 items
+      - Use pagination or infinite scroll for large datasets
+
+  - Lazy Loading:
+      - ALL feature routes MUST be lazy loaded
+      - Use loadChildren in route configuration
+      - Split routes by feature
+
+  - Image Optimization:
+      - Use lazy loading for images: <img loading="lazy" />
+      - Use appropriate image formats (WebP, AVIF when supported)
+      - Optimize image sizes
+      - Use srcset for responsive images
+
+  - Bundle Optimization:
+      - Import only what you need from libraries (tree-shaking)
+      - Use dynamic imports for heavy dependencies
+      - Lazy load PrimeNG modules
+      - Analyze bundle size with source-map-explorer
+
+  - Caching:
+      - Use shareReplay(1) in services for frequently accessed data
+      - Implement HTTP cache headers when available
+      - Clear cache on mutations (create/update/delete)
+
+  - Unsubscribe:
+      - Use async pipe when possible (auto-unsubscribe)
+      - Use takeUntilDestroyed() for manual subscriptions
+      - NEVER leave subscriptions without cleanup
+
+  - Debouncing:
+      - Use debounceTime() for search inputs
+      - Use debounceTime(300) for API calls triggered by user input
+
+  - Memoization:
+      - Use computed() signals for expensive calculations
+      - Cache results in services when appropriate
+
+  # ------------------------
+  # TAILWIND CSS + PRIMENG STYLING RULES
+  # ------------------------
+  - Styling Approach:
+      - Use Tailwind CSS for layout and utility styling
+      - Use PrimeNG components for complex UI elements (tables, modals, forms)
+      - Combine both for best developer experience
+
+  - Tailwind Usage:
+      - ALL styling MUST use Tailwind utility classes when possible
+      - NO custom CSS unless absolutely necessary
+      - Use Tailwind Design System tokens
 
   - Component CSS Files:
       - Use ONLY for @apply directives with Tailwind utilities
-      - Use ONLY for custom animations or complex selectors
+      - Use ONLY for custom animations
+      - Use ONLY for complex selectors that can't be done with utilities
       - Example: @apply bg-primary text-white rounded-lg p-4;
 
   - Responsive Design:
-      - Use Tailwind breakpoints: sm:, md:, lg:, xl:, 2xl:
       - Mobile-first approach
+      - Use Tailwind breakpoints: sm:, md:, lg:, xl:, 2xl:
       - Example: grid-cols-1 md:grid-cols-2 lg:grid-cols-3
+
+  - PrimeNG Integration:
+      - Import only needed PrimeNG modules
+      - Use PrimeNG theme customization via CSS variables
+      - Combine PrimeNG components with Tailwind for layout
+
+  - Color Scheme:
+      - Primary: Blue (bg-blue-600, text-blue-600)
+      - Success: Green (bg-green-600)
+      - Danger: Red (bg-red-600)
+      - Warning: Yellow (bg-yellow-600)
+      - Info: Cyan (bg-cyan-600)
+      - Neutral: Gray scale (bg-gray-100, text-gray-700)
 
   - Common UI Patterns:
       - Cards: bg-white rounded-lg shadow-md p-6
       - Buttons: px-4 py-2 rounded-md font-medium transition-colors
-      - Forms: Use Tailwind form plugin classes
-      - Tables: Use Tailwind table utilities
-      - Modals: Use backdrop-blur, fixed positioning
-
-  - Color Scheme:
-      - Primary: Use for main actions (bg-blue-600, text-blue-600)
-      - Success: Use for positive actions (bg-green-600)
-      - Danger: Use for delete/destructive actions (bg-red-600)
-      - Warning: Use for warnings (bg-yellow-600)
-      - Neutral: Use for secondary elements (bg-gray-100, text-gray-700)
+      - Forms: Use Tailwind form utilities
+      - Tables: Use PrimeNG Table component with Tailwind styling
+      - Modals: Use PrimeNG Dialog with backdrop-blur
 
   # ------------------------
-  # FORM HANDLING RULES
+  # ACCESSIBILITY (A11Y) RULES
   # ------------------------
-  - Use Reactive Forms (FormBuilder, FormGroup, FormControl).
-    NO template-driven forms.
+  - Semantic HTML:
+      - Use semantic HTML5 elements (nav, main, article, section, etc.)
+      - Use proper heading hierarchy (h1 → h2 → h3)
+      - Use form labels associated with inputs
 
-  - Form Component Pattern:
-      - Use inject(FormBuilder)
-      - Use signals for form state
-      - Use Validators from @angular/forms
-      - Display validation errors with Tailwind styling
-      - Use async validators for server-side validation
+  - ARIA Labels:
+      - Add aria-label for icon-only buttons
+      - Add aria-describedby for form field errors
+      - Add aria-live for dynamic content updates
+      - Add aria-expanded for collapsible content
 
-  - Form Validation:
-      - Match backend validation rules
-      - Show error messages below fields
-      - Use Tailwind error styling (text-red-600, border-red-500)
-      - Disable submit button when form is invalid
+  - Keyboard Navigation:
+      - Ensure all interactive elements are keyboard accessible
+      - Use tabindex appropriately (usually -1 or 0)
+      - Implement keyboard shortcuts for common actions
+      - Skip links for main content
 
-  - Form Structure:
-      export class {{Feature}}FormComponent {
-        private readonly fb = inject(FormBuilder);
-        private readonly route = inject(ActivatedRoute);
-        private readonly {{feature}}Service = inject({{Feature}}Service);
-        private readonly router = inject(Router);
+  - Focus Management:
+      - Use focus-visible for focus states
+      - Manage focus for modals and dialogs
+      - Return focus after closing modals
 
-        form = this.fb.group({
-          // Form controls matching Create/Update models
-        });
+  - Color Contrast:
+      - Maintain WCAG AA contrast ratios (4.5:1 for text)
+      - Don't rely solely on color to convey information
+      - Test with color blindness simulators
 
-        onSubmit() {
-          if (this.form.valid) {
-            // Handle submit
-          }
-        }
-      }
-
-  # ------------------------
-  # STATE MANAGEMENT RULES
-  # ------------------------
-  - Use Angular Signals for component-level state.
-    Use RxJS Observables for async data (API calls).
-
-  - Component State Pattern:
-      - Use signals for local state: readonly data = signal<Model[]>([]);
-      - Use computed for derived state: readonly filtered = computed(() => ...);
-      - Use effect() sparingly (only for side effects)
-
-  - Service State:
-      - Services return Observables (not store state)
-      - Use shareReplay(1) for caching if needed
-      - Use BehaviorSubject only if cross-component state needed
+  - Screen Readers:
+      - Provide alt text for images
+      - Use aria-hidden for decorative elements
+      - Test with screen readers
 
   # ------------------------
   # AUTHENTICATION & AUTHORIZATION
   # ------------------------
   - Keycloak Integration:
       - Use Keycloak Angular library or custom service
-      - Store JWT token in httpOnly cookie or secure storage
+      - Store JWT token securely (httpOnly cookie preferred)
       - Use interceptors to attach Authorization header
+      - Handle token refresh automatically
+
+  - Auth Service Pattern:
+      export class AuthService {
+        private readonly token = signal<string | null>(null);
+        private readonly user = signal<User | null>(null);
+        
+        readonly isAuthenticated = computed(() => !!this.token());
+        readonly currentUser = computed(() => this.user());
+        
+        login(username: string, password: string): Observable<void> {
+          // Keycloak login logic
+        }
+        
+        logout(): void {
+          this.token.set(null);
+          this.user.set(null);
+        }
+      }
 
   - Auth Guard:
       /app/core/guards/auth.guard.ts
       - Check if user is authenticated
       - Redirect to login if not authenticated
+      - Store redirect URL for post-login navigation
 
   - Role Guard:
       /app/core/guards/role.guard.ts
       - Check user roles from JWT token
       - Match backend role requirements
       - Roles: Admin, Doctor, Receptionist, Pharmacist, Accountant
+
+  - HTTP Interceptor:
+      /app/core/interceptors/auth.interceptor.ts
+      - Attach Authorization: Bearer <token> header
+      - Handle 401 errors (redirect to login)
+      - Handle 403 errors (show access denied)
+      - Refresh token if expired
 
   - Feature-specific Role Access:
       Patients → Admin, Doctor, Receptionist
@@ -611,17 +762,12 @@ rules:
       Inventory → Admin, Pharmacist
       Invoices → Admin, Accountant, Receptionist
 
-  - HTTP Interceptor:
-      /app/core/interceptors/auth.interceptor.ts
-      - Attach Authorization: Bearer <token> header
-      - Handle 401 errors (redirect to login)
-      - Handle 403 errors (show access denied)
-
   # ------------------------
   # ERROR HANDLING RULES
   # ------------------------
   - Global Error Handler:
       /app/core/error-handler/global-error-handler.ts
+      - Implement ErrorHandler interface
       - Log errors to console/service
       - Show user-friendly error messages
       - Handle network errors gracefully
@@ -630,30 +776,142 @@ rules:
       - Use catchError operator in RxJS pipes
       - Display error messages with Tailwind alert components
       - Use loading states (show spinners during API calls)
+      - Use signals for error state: readonly error = signal<string | null>(null);
+
+  - Service Error Handling:
+      - Implement handleError method in services
+      - Return user-friendly error messages
+      - Log errors for debugging
+      - Handle different error types (network, server, validation)
 
   - Error Display Pattern:
-      - Use Tailwind alert components
       - Success: bg-green-50 border-green-200 text-green-800
       - Error: bg-red-50 border-red-200 text-red-800
+      - Warning: bg-yellow-50 border-yellow-200 text-yellow-800
       - Info: bg-blue-50 border-blue-200 text-blue-800
+
+  - Error Component Pattern:
+      @if (error()) {
+        <div class="rounded-md bg-red-50 border border-red-200 p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <!-- Error icon -->
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-red-800">
+                {{ error() }}
+              </p>
+            </div>
+          </div>
+        </div>
+      }
 
   # ------------------------
   # SHARED COMPONENTS RULES
   # ------------------------
-  - Shared components go in /app/shared/components/
+  - Shared Components Location:
+      /app/shared/components/
 
   - Required Shared Components:
-      - LoadingSpinnerComponent
-      - ErrorMessageComponent
-      - ConfirmDialogComponent
-      - PaginationComponent
+      - LoadingSpinnerComponent (reusable loading indicator)
+      - ErrorMessageComponent (reusable error display)
+      - SuccessMessageComponent (reusable success message)
+      - ConfirmDialogComponent (confirmation dialogs)
+      - PaginationComponent (reusable pagination)
       - DataTableComponent (reusable table with sorting/filtering)
-      - SearchInputComponent
-      - DatePickerComponent
+      - SearchInputComponent (reusable search input)
+      - DatePickerComponent (reusable date picker)
+      - EmptyStateComponent (empty state display)
 
   - Shared Component Naming:
-      PascalCase: LoadingSpinnerComponent
-      File: loading-spinner.component.ts
+      - Class: PascalCase (LoadingSpinnerComponent)
+      - File: kebab-case (loading-spinner.component.ts)
+
+  - Shared Component Pattern:
+      - MUST be standalone
+      - MUST use OnPush change detection
+      - Use signals for internal state
+      - Accept inputs via @Input()
+      - Emit events via @Output()
+      - Use Tailwind for styling
+
+  # ------------------------
+  # TYPESCRIPT BEST PRACTICES
+  # ------------------------
+  - Type Safety:
+      - Use strict mode in tsconfig.json
+      - NO any types (use unknown if needed)
+      - Use interfaces for object shapes
+      - Use type for unions/intersections/aliases
+      - Use readonly for immutable data
+      - Use const assertions for literal types
+
+  - Naming Conventions:
+      - Components: PascalCase (PatientListComponent)
+      - Services: PascalCase (PatientService)
+      - Models/Interfaces: PascalCase (PatientModel)
+      - Files: kebab-case (patient-list.component.ts)
+      - Variables/Methods: camelCase (getPatients)
+      - Constants: UPPER_SNAKE_CASE (API_BASE_URL)
+      - Private members: camelCase with underscore prefix (private readonly _http)
+
+  - File Organization:
+      - One class/interface per file
+      - Export from index.ts for cleaner imports (barrel exports)
+      - Use absolute paths with @ alias if configured
+      - Group imports: Angular → Third-party → Local
+
+  - Type Definitions:
+      - Define types for all function parameters and return values
+      - Use generic types when appropriate
+      - Use utility types (Partial, Pick, Omit, etc.)
+
+  # ------------------------
+  # TESTING RULES
+  # ------------------------
+  - Unit Tests:
+      - One .spec.ts file per component/service
+      - Use Jasmine and Karma
+      - Test component logic, not implementation details
+      - Mock services and HTTP calls
+      - Test inputs, outputs, and user interactions
+
+  - Test File Location:
+      Same directory as component/service
+      Example: patient-list.component.spec.ts
+
+  - Test Patterns:
+      - Use TestBed for component testing
+      - Mock dependencies with jasmine.createSpyObj()
+      - Use HttpClientTestingModule for HTTP testing
+      - Test async operations properly
+
+  - Test Coverage:
+      - Aim for >80% code coverage
+      - Test critical paths thoroughly
+      - Test error handling
+
+  # ------------------------
+  # CODE ORGANIZATION RULES
+  # ------------------------
+  - Import Organization:
+      1. Angular core imports (@angular/core, @angular/common)
+      2. Angular feature imports (@angular/router, @angular/forms)
+      3. Third-party imports (rxjs, primeng)
+      4. Local imports (shared, core, features)
+      - Separate groups with blank lines
+      - Sort imports alphabetically within groups
+
+  - File Structure:
+      - Component: class, then methods (lifecycle hooks first)
+      - Service: dependencies, then methods (public first, private last)
+      - Models: interfaces/types in separate files
+
+  - Comments:
+      - Use JSDoc comments for public APIs
+      - Explain WHY, not WHAT
+      - Keep comments up to date
+      - Remove commented-out code
 
   # ------------------------
   # ENVIRONMENT CONFIGURATION
@@ -666,80 +924,19 @@ rules:
   - Environment Structure:
       export const environment = {
         production: false,
-        apiUrl: 'http://localhost:5000',
+        apiUrl: 'http://localhost:5037',
         keycloakUrl: 'http://localhost:8080',
         keycloakRealm: 'hospital-erp',
         keycloakClientId: 'hospital-frontend'
       };
 
   # ------------------------
-  # TESTING RULES
-  # ------------------------
-  - Unit Tests:
-      - One .spec.ts file per component/service
-      - Use Jasmine and Karma
-      - Test component logic, not implementation details
-      - Mock services and HTTP calls
-
-  - Test File Location:
-      Same directory as component/service
-      Example: patient-list.component.spec.ts
-
-  # ------------------------
-  # CODE QUALITY RULES
-  # ------------------------
-  - TypeScript:
-      - Use strict mode
-      - No any types (use unknown if needed)
-      - Use interfaces for models
-      - Use type for unions/intersections
-
-  - Naming Conventions:
-      - Components: PascalCase (PatientListComponent)
-      - Services: PascalCase (PatientService)
-      - Models/Interfaces: PascalCase (PatientModel)
-      - Files: kebab-case (patient-list.component.ts)
-      - Variables/Methods: camelCase (getPatients)
-      - Constants: UPPER_SNAKE_CASE (API_BASE_URL)
-
-  - File Organization:
-      - One class/interface per file
-      - Export from index.ts for cleaner imports
-      - Use barrel exports: export * from './patient.service';
-
-  - Imports:
-      - Group imports: Angular → Third-party → Local
-      - Use absolute paths with @ alias if configured
-      - Remove unused imports
-
-  # ------------------------
-  # PERFORMANCE RULES
-  # ------------------------
-  - Use OnPush change detection for all components.
-  - Use trackBy function in *ngFor loops.
-  - Lazy load feature modules.
-  - Use async pipe for Observables (auto unsubscribe).
-  - Implement virtual scrolling for long lists.
-  - Use image lazy loading.
-  - Minimize bundle size (tree-shaking).
-
-  # ------------------------
-  # ACCESSIBILITY RULES
-  # ------------------------
-  - Use semantic HTML elements.
-  - Add ARIA labels where needed.
-  - Ensure keyboard navigation works.
-  - Maintain proper color contrast (WCAG AA).
-  - Use focus-visible for focus states.
-  - Add alt text for images.
-
-  # ------------------------
   # API COMMUNICATION RULES
   # ------------------------
-  - All API calls MUST go through feature services.
-  - Use HttpClient with proper error handling.
-  - Use HttpParams for query parameters.
-  - Handle pagination with backend PaginatedResponse.
+  - All API calls MUST go through feature services
+  - Use HttpClient with proper error handling
+  - Use HttpParams for query parameters
+  - Handle pagination with backend PaginatedResponse
   - Use proper HTTP methods:
       GET for queries
       POST for create
@@ -751,3 +948,35 @@ rules:
       - Handle pagination metadata
       - Handle error responses (400, 401, 403, 404, 500)
       - Show appropriate user messages
+      - Implement retry logic for transient failures
+
+  - Request/Response Interceptors:
+      - Use interceptors for auth headers
+      - Use interceptors for error handling
+      - Use interceptors for logging (development only)
+
+  # ------------------------
+  # SECURITY BEST PRACTICES
+  # ------------------------
+  - XSS Prevention:
+      - Use Angular's built-in sanitization
+      - Avoid innerHTML when possible
+      - Sanitize user input before display
+
+  - CSRF Protection:
+      - Use HTTP-only cookies for tokens
+      - Implement CSRF tokens if required by backend
+
+  - Content Security Policy:
+      - Implement CSP headers
+      - Restrict external script sources
+
+  - Token Storage:
+      - Prefer httpOnly cookies over localStorage
+      - Never store sensitive data in localStorage
+      - Clear tokens on logout
+
+  - Input Validation:
+      - Validate on both client and server
+      - Sanitize user input
+      - Use TypeScript types for type safety
