@@ -1,8 +1,9 @@
 # Build stage
-FROM node:20-alpine AS build
+FROM node:25-alpine AS build
 
-# Install curl for healthchecks first for better layer caching
-RUN apk add --no-cache curl
+# Update apk packages and install curl for healthchecks first for better layer caching
+# This ensures we get the latest security patches
+RUN apk update && apk upgrade && apk add --no-cache curl && rm -rf /var/cache/apk/*
 
 WORKDIR /app
 
@@ -20,8 +21,9 @@ RUN npm run build -- --configuration production
 # Runtime stage - use nginx to serve static files
 FROM nginx:alpine AS final
 
-# Install curl for healthchecks
-RUN apk add --no-cache curl
+# Update apk packages and install curl for healthchecks
+# This ensures we get the latest security patches
+RUN apk update && apk upgrade && apk add --no-cache curl && rm -rf /var/cache/apk/*
 
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
