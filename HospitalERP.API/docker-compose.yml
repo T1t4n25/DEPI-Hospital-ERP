@@ -14,7 +14,7 @@ services:
       - "${DB_PORT:-1433}:1433"
     volumes:
       - sqlserver_data:/var/opt/mssql
-      - ./HospitalERP.API/Scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./Scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - hospitalerp-network
     healthcheck:
@@ -25,10 +25,80 @@ services:
       start_period: 30s
     restart: unless-stopped
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: hospitalerp-keycloak
+    env_file:
+      - .env
+    environment:
+      - KC_HOSTNAME_STRICT=false
+      - KC_HOSTNAME_STRICT_HTTPS=false
+      - KC_HTTP_ENABLED=true
+      - KC_HEALTH_ENABLED=true
+      - KC_METRICS_ENABLED=true
+      - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN:-admin}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD:-admin}
+    command: start-dev
+    ports:
+      - "${KEYCLOAK_PORT:-8080}:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - keycloak_providers:/opt/keycloak/providers
+      - keycloak_themes:/opt/keycloak/themes
+    networks:
+      - hospitalerp-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hospitalerp-api
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - DB_SERVER=sqlserver
+      - DB_DATABASE=${DB_DATABASE:-HospitalERP}
+      - DB_USER=${DB_USER:-sa}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - KEYCLOAK_AUTHORITY=${KEYCLOAK_AUTHORITY:-http://keycloak:8080/realms/hospital-erp}
+      - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE:-hospital-erp-api,account}
+      - KEYCLOAK_REQUIRE_HTTPS=false
+    ports:
+      - "${API_PORT:-5037}:80"
+    volumes:
+      - ./appsettings.json:/app/appsettings.json:ro
+      - ./appsettings.Development.json:/app/appsettings.Development.json:ro
+    networks:
+      - hospitalerp-network
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/swagger || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
 networks:
   hospitalerp-network:
     driver: bridge
 
 volumes:
   sqlserver_data:
+  keycloak_data:
+  keycloak_providers:
+  keycloak_themes:
 

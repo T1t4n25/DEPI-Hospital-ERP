@@ -22,7 +22,7 @@ fi
 source .env 2>/dev/null || true
 
 # Start containers
-docker-compose up -d
+docker compose up -d
 
 echo "Waiting for SQL Server to be ready..."
 sleep 5
@@ -30,10 +30,10 @@ sleep 5
 # Wait for SQL Server to be ready
 timeout=60
 elapsed=0
-while ! docker-compose exec -T sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "${DB_PASSWORD}" -Q "SELECT 1" &>/dev/null; do
+while ! docker compose exec -T sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "${DB_PASSWORD}" -Q "SELECT 1" &>/dev/null; do
     if [ $elapsed -ge $timeout ]; then
         echo "Timeout waiting for SQL Server to be ready"
-        docker-compose logs sqlserver
+        docker compose logs sqlserver
         exit 1
     fi
     echo "Waiting for SQL Server... ($elapsed/$timeout seconds)"
