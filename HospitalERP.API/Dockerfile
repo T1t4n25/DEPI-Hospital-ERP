@@ -27,7 +27,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 
 
-EXPOSE 80
+EXPOSE 5037
 EXPOSE 443
 
 # Copy published app from publish stage
