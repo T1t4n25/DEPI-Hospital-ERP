@@ -15,8 +15,10 @@ services:
     ports:
       - "${DB_PORT:-1433}:1433"
     volumes:
+      - ./HospitalERP.API/Scripts/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./HospitalERP.API/Scripts/docker-entrypoint.sh:/docker-entrypoint.sh:ro
       - sqlserver_data:/var/opt/mssql
-      - ./HospitalERP.API/Scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    entrypoint: ["/bin/bash", "/docker-entrypoint.sh"]
     networks:
       - hospitalerp-network
     healthcheck:
@@ -42,6 +44,7 @@ services:
     command: start-dev --health-enabled=true
     ports:
       - "${KEYCLOAK_PORT:-8080}:8080"
+      - 9000:9000
     volumes:
       - keycloak_data:/opt/keycloak/data
       - keycloak_providers:/opt/keycloak/providers
@@ -49,10 +52,10 @@ services:
     networks:
       - hospitalerp-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
-      interval: 10s
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000;echo -e 'GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n' >&3;if [ $? -eq 0 ]; then echo 'Healthcheck Successful';exit 0;else echo 'Healthcheck Failed';exit 1;fi;"]
+      interval: 5s
       timeout: 5s
-      retries: 6
+      retries: 20
       start_period: 60s
     restart: unless-stopped
 
@@ -61,14 +64,14 @@ services:
       context: ./HospitalERP.API
       dockerfile: ./Dockerfile
     container_name: hospitalerp-api
-    # env_file: HospitalERP.API/.env  # Optional: uncomment to use .env file
+    env_file: HospitalERP.API/.env  # Optional: uncomment to use .env file
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
       - ASPNETCORE_URLS=http://+:80
       - DB_SERVER=${DB_SERVER:-sqlserver}
       - DB_DATABASE=${DB_DATABASE:-HospitalERP}
       - DB_USER=${DB_USER:-sa}
-      - DB_PASSWORD=${DB_PASSWORD:-YourStrong!Password123}
+      - DB_PASSWORD=${DB_PASSWORD:-YourStrongPassword123}
       - KEYCLOAK_AUTHORITY=${KEYCLOAK_AUTHORITY:-http://keycloak:8080/realms/hospital-erp}
       - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE:-hospital-erp-api,account}
       - KEYCLOAK_REQUIRE_HTTPS=false
@@ -85,7 +88,7 @@ services:
       keycloak:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80/swagger || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:5037/swagger || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5

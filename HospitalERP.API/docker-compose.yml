@@ -12,7 +12,9 @@ services:
       - "${DB_PORT:-1433}:1433"
     volumes:
       - sqlserver_data:/var/opt/mssql
-      - ./Scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./Scripts/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./Scripts/docker-entrypoint.sh:/docker-entrypoint.sh:ro
+    entrypoint: ["/bin/bash", "/docker-entrypoint.sh"]
     networks:
       - hospitalerp-network
     healthcheck:
