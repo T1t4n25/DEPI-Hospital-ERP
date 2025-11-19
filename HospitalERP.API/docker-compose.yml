@@ -18,7 +18,7 @@ services:
     networks:
       - hospitalerp-network
     healthcheck:
-      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD} -Q "SELECT 1" || exit 1
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD} -C -Q "SELECT 1" || exit 1
       interval: 10s
       timeout: 5s
       retries: 5
@@ -38,9 +38,10 @@ services:
       - KC_METRICS_ENABLED=true
       - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN:-admin}
       - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD:-admin}
-    command: start-dev
+    command: start-dev --health-enabled=true
     ports:
       - "${KEYCLOAK_PORT:-8080}:8080"
+      - 9000:9000
     volumes:
       - keycloak_data:/opt/keycloak/data
       - keycloak_providers:/opt/keycloak/providers
@@ -48,10 +49,10 @@ services:
     networks:
       - hospitalerp-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
-      interval: 30s
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000;echo -e 'GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n' >&3;if [ $? -eq 0 ]; then echo 'Healthcheck Successful';exit 0;else echo 'Healthcheck Failed';exit 1;fi;"]
+      interval: 5s
       timeout: 10s
-      retries: 5
+      retries: 20
       start_period: 60s
     restart: unless-stopped
 
@@ -64,7 +65,7 @@ services:
       - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_URLS=http://+:5037
       - DB_SERVER=sqlserver
       - DB_DATABASE=${DB_DATABASE:-HospitalERP}
       - DB_USER=${DB_USER:-sa}
@@ -73,7 +74,7 @@ services:
       - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE:-hospital-erp-api,account}
       - KEYCLOAK_REQUIRE_HTTPS=false
     ports:
-      - "${API_PORT:-5037}:80"
+      - "${API_PORT:-5037}:5037"
     volumes:
       - ./appsettings.json:/app/appsettings.json:ro
       - ./appsettings.Development.json:/app/appsettings.Development.json:ro
@@ -85,7 +86,7 @@ services:
       keycloak:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80/swagger || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:5037/swagger || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
