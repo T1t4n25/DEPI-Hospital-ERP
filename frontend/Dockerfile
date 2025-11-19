@@ -9,8 +9,10 @@ WORKDIR /app
 
 # Copy package files first for better layer caching
 # This layer will be cached unless dependencies change
-COPY package.json package-lock.json ./
-RUN npm ci --only=production=false
+COPY package.json ./
+# Copy package-lock.json if it exists, otherwise npm install will create it
+COPY package-lock.json* ./
+RUN if [ -f package-lock.json ]; then npm ci --only=production=false; else npm install --only=production=false; fi
 
 # Copy all source code (this layer will invalidate cache when code changes)
 COPY . .
