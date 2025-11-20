@@ -73,22 +73,26 @@ This starts:
 Create `HospitalERP.API/.env` file:
 
 ```env
-# Database
-DB_PASSWORD=YourStrong!Password123
+# Database Configuration
+DB_PASSWORD=YourStrongPassword123
 DB_PORT=1433
 DB_SERVER=localhost
 DB_DATABASE=HospitalERP
 DB_USER=sa
+# Full connection string (optional - will be constructed from above if not provided)
+DB_CONNECTION_STRING=Server=localhost;Database=HospitalERP;User Id=sa;Password=YourStrongPassword123;TrustServerCertificate=true;MultipleActiveResultSets=true;
 
-# Keycloak
+# Keycloak Configuration
 KEYCLOAK_PORT=8080
 KEYCLOAK_ADMIN=admin
 KEYCLOAK_ADMIN_PASSWORD=admin
 KEYCLOAK_AUTHORITY=http://localhost:8080/realms/hospital-erp
 KEYCLOAK_AUDIENCE=hospital-erp-api,account
+KEYCLOAK_REQUIRE_HTTPS=false
 
-# API
+# API Configuration
 API_PORT=5037
+ASPNETCORE_ENVIRONMENT=Development
 ```
 
 ### Frontend Environment File

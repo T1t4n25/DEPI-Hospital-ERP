@@ -190,7 +190,7 @@ def main():
         sys.exit(1)
     
     # Username and password (hardcoded as requested)
-    username = "test"
+    username = "test-user"
     password = "123qwe"
     
     # Display configuration
