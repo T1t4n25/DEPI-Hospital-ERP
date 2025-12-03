@@ -6,15 +6,13 @@ export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // Placeholder - will be implemented in Phase 2
-  // For Phase 1, always allow access
-  return true;
-  
-  // Phase 2 implementation:
-  // if (authService.isAuthenticated()) {
-  //   return true;
-  // }
-  // router.navigate(['/login']);
-  // return false;
+  if (authService.isAuthenticated()) {
+    return true;
+  }
+
+  // Redirect to login with return URL
+  const returnUrl = state.url;
+  router.navigate(['/login'], { queryParams: { returnUrl } });
+  return false;
 };
 
