@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -24,6 +25,8 @@ export class HeaderComponent {
     avatar: 'https://ui-avatars.com/api/?name=John+Doe&background=0ea5e9&color=fff'
   };
 
+  constructor(private authService: AuthService) { }
+
   toggleUserMenu() {
     this.showUserMenu.set(!this.showUserMenu());
   }
@@ -34,6 +37,11 @@ export class HeaderComponent {
 
   get unreadCount() {
     return this.notifications.filter(n => !n.read).length;
+  }
+
+  logout(event: Event) {
+    event.preventDefault();
+    this.authService.logout();
   }
 }
 

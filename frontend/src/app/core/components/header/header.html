@@ -5,57 +5,44 @@
 
   <div class="flex items-center gap-4">
     <!-- Search -->
-    <div class="relative hidden md:block">
-      <input
-        type="text"
-        placeholder="Search..."
-        class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64"
-      />
-      <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-    </div>
+    
 
     <!-- Notifications -->
     <div class="relative">
-      <button
-        (click)="toggleNotifications()"
-        class="p-2 hover:bg-gray-100 rounded-lg relative transition-colors"
-        [attr.aria-label]="'Notifications'"
-      >
+      <button (click)="toggleNotifications()" class="p-2 hover:bg-gray-100 rounded-lg relative transition-colors"
+        [attr.aria-label]="'Notifications'">
         <i class="pi pi-bell text-gray-600 text-lg"></i>
         @if (unreadCount > 0) {
-          <span class="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-            {{ unreadCount }}
-          </span>
+        <span
+          class="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+          {{ unreadCount }}
+        </span>
         }
       </button>
 
       @if (showNotifications()) {
-        <div class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-          <div class="p-4 border-b border-gray-200">
-            <h3 class="font-semibold text-gray-800">Notifications</h3>
-          </div>
-          <div class="max-h-96 overflow-y-auto">
-            @for (notification of notifications; track notification.id) {
-              <div 
-                class="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
-                [class.bg-blue-50]="!notification.read"
-              >
-                <p class="text-sm text-gray-800">{{ notification.message }}</p>
-                <p class="text-xs text-gray-500 mt-1">{{ notification.time }}</p>
-              </div>
-            }
-          </div>
+      <div class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+        <div class="p-4 border-b border-gray-200">
+          <h3 class="font-semibold text-gray-800">Notifications</h3>
         </div>
+        <div class="max-h-96 overflow-y-auto">
+          @for (notification of notifications; track notification.id) {
+          <div class="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+            [class.bg-blue-50]="!notification.read">
+            <p class="text-sm text-gray-800">{{ notification.message }}</p>
+            <p class="text-xs text-gray-500 mt-1">{{ notification.time }}</p>
+          </div>
+          }
+        </div>
+      </div>
       }
     </div>
 
     <!-- User Menu -->
     <div class="relative">
-      <button
-        (click)="toggleUserMenu()"
+      <button (click)="toggleUserMenu()"
         class="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-        [attr.aria-label]="'User menu'"
-      >
+        [attr.aria-label]="'User menu'">
         <img [src]="user.avatar" [alt]="user.name" class="w-8 h-8 rounded-full" />
         <div class="hidden md:block text-left">
           <p class="text-sm font-medium text-gray-800">{{ user.name }}</p>
@@ -65,25 +52,25 @@
       </button>
 
       @if (showUserMenu()) {
-        <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-          <div class="p-2">
-            <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
-              <i class="pi pi-user"></i>
-              <span>Profile</span>
-            </a>
-            <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
-              <i class="pi pi-cog"></i>
-              <span>Settings</span>
-            </a>
-            <hr class="my-1" />
-            <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg">
-              <i class="pi pi-sign-out"></i>
-              <span>Logout</span>
-            </a>
-          </div>
+      <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+        <div class="p-2">
+          <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+            <i class="pi pi-user"></i>
+            <span>Profile</span>
+          </a>
+          <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+            <i class="pi pi-cog"></i>
+            <span>Settings</span>
+          </a>
+          <hr class="my-1" />
+          <a href="#" (click)="logout($event)"
+            class="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg">
+            <i class="pi pi-sign-out"></i>
+            <span>Logout</span>
+          </a>
         </div>
+      </div>
       }
     </div>
   </div>
 </header>
-

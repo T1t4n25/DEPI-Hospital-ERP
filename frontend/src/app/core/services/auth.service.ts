@@ -1,4 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
+import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 
 export interface User {
@@ -18,7 +19,7 @@ export class AuthService {
   readonly isAuthenticated = computed(() => !!this._token());
   readonly currentUser = computed(() => this._currentUser());
 
-  constructor() {
+  constructor(private router: Router) {
     // Load token from localStorage on initialization
     const storedToken = localStorage.getItem('auth_token');
     if (storedToken) {
@@ -42,7 +43,7 @@ export class AuthService {
     try {
       // Decode JWT token (base64 decode the payload)
       const payload = JSON.parse(atob(token.split('.')[1]));
-      
+
       // Extract user information from token claims
       this._currentUser.set({
         name: payload.name || payload.preferred_username || 'User',
@@ -66,7 +67,7 @@ export class AuthService {
     try {
       // Call Keycloak token endpoint directly
       const tokenUrl = `${environment.keycloakUrl}/realms/${environment.keycloakRealm}/protocol/openid-connect/token`;
-      
+
       const params = new URLSearchParams({
         grant_type: 'password',
         client_id: environment.keycloakClientId,
@@ -132,6 +133,7 @@ export class AuthService {
     this._token.set(null);
     this._currentUser.set(null);
     localStorage.removeItem('auth_token');
+    this.router.navigate(['/login']);
   }
 
   hasRole(role: string): boolean {
