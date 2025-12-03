@@ -2,12 +2,12 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using HospitalERP.API.Common.Swagger;
 using HospitalERP.API.Data;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-// OpenApi types - using fully qualified names due to namespace issues
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +52,12 @@ builder.Services.AddSwaggerGen(options =>
             { schemeRef, new List<string>() }
         };
     });
+
+    // Add operation filter for response examples
+    options.OperationFilter<SwaggerExampleFilter>();
+    
+    // Enable annotations for better Swagger documentation
+    options.EnableAnnotations();
 });
 
 // Entity Framework Core
@@ -131,7 +137,7 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
         ValidateAudience = true,
-        ValidateIssuer = true,
+        ValidateIssuer = false,
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero,
         // Set ValidAudience for single audience, ValidAudiences for multiple
