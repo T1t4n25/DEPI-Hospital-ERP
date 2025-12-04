@@ -6,6 +6,44 @@
 @tailwind components;
 @tailwind utilities;
 
+/* PrimeNG 20 Base Styles - Since theme CSS is not available, we add base component styles */
+.p-component {
+  font-family: var(--font-family);
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+.p-component-overlay {
+  background-color: rgba(0, 0, 0, 0.4);
+  transition-duration: 0.2s;
+}
+
+.p-component-overlay-enter {
+  animation: p-component-overlay-enter-animation 150ms forwards;
+}
+
+.p-component-overlay-leave {
+  animation: p-component-overlay-leave-animation 150ms forwards;
+}
+
+@keyframes p-component-overlay-enter-animation {
+  from {
+    background-color: transparent;
+  }
+  to {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+}
+
+@keyframes p-component-overlay-leave-animation {
+  from {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+
 /* Global styles */
 * {
   margin: 0;
@@ -262,6 +300,162 @@ body {
     padding: 0.5rem 1rem;
     font-size: 0.875rem;
   }
+}
+
+/* ===== Toast/Notification Styling ===== */
+
+.p-toast {
+  z-index: 11000 !important;
+}
+
+.p-toast .p-toast-message {
+  margin: 0 0 1rem 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-radius: 0.5rem;
+  border-width: 0;
+}
+
+.p-toast .p-toast-message.p-toast-message-success {
+  background: #f0fdf4;
+  border-left: 4px solid #22c55e;
+}
+
+.p-toast .p-toast-message.p-toast-message-success .p-toast-message-icon,
+.p-toast .p-toast-message.p-toast-message-success .p-toast-summary,
+.p-toast .p-toast-message.p-toast-message-success .p-toast-detail {
+  color: #16a34a;
+}
+
+.p-toast .p-toast-message.p-toast-message-error {
+  background: #fef2f2;
+  border-left: 4px solid #ef4444;
+}
+
+.p-toast .p-toast-message.p-toast-message-error .p-toast-message-icon,
+.p-toast .p-toast-message.p-toast-message-error .p-toast-summary,
+.p-toast .p-toast-message.p-toast-message-error .p-toast-detail {
+  color: #dc2626;
+}
+
+.p-toast .p-toast-message.p-toast-message-warn {
+  background: #fffbeb;
+  border-left: 4px solid #f59e0b;
+}
+
+.p-toast .p-toast-message.p-toast-message-warn .p-toast-message-icon,
+.p-toast .p-toast-message.p-toast-message-warn .p-toast-summary,
+.p-toast .p-toast-message.p-toast-message-warn .p-toast-detail {
+  color: #d97706;
+}
+
+.p-toast .p-toast-message.p-toast-message-info {
+  background: #eff6ff;
+  border-left: 4px solid #3b82f6;
+}
+
+.p-toast .p-toast-message.p-toast-message-info .p-toast-message-icon,
+.p-toast .p-toast-message.p-toast-message-info .p-toast-summary,
+.p-toast .p-toast-message.p-toast-message-info .p-toast-detail {
+  color: #2563eb;
+}
+
+/* ===== Confirm Dialog Styling ===== */
+
+.p-confirm-dialog {
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  z-index: 11000 !important;
+}
+
+.p-confirm-dialog .p-dialog-header {
+  background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+  border-bottom: 1px solid #e2e8f0;
+  padding: 1.25rem 1.5rem;
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.p-confirm-dialog .p-dialog-title {
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: #1e293b;
+}
+
+.p-confirm-dialog .p-dialog-content {
+  padding: 1.5rem;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.9375rem;
+}
+
+.p-confirm-dialog .p-dialog-footer {
+  padding: 1rem 1.5rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-radius: 0 0 0.75rem 0.75rem;
+}
+
+.p-confirm-dialog .p-confirm-dialog-icon {
+  font-size: 1.5rem;
+  margin-right: 0.75rem;
+}
+
+/* Dialog Overlay */
+.p-component-overlay-enter {
+  animation: p-component-overlay-enter-animation 150ms forwards;
+}
+
+.p-component-overlay-leave {
+  animation: p-component-overlay-leave-animation 150ms forwards;
+}
+
+@keyframes p-component-overlay-enter-animation {
+  from {
+    background-color: transparent;
+  }
+  to {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+}
+
+@keyframes p-component-overlay-leave-animation {
+  from {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+
+/* ===== Table Border and Structure ===== */
+
+.p-datatable {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+  border-right: 1px solid #e2e8f0;
+}
+
+.p-datatable .p-datatable-thead > tr > th:last-child {
+  border-right: none;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  border-right: 1px solid #e2e8f0;
+}
+
+.p-datatable .p-datatable-tbody > tr > td:last-child {
+  border-right: none;
+}
+
+.p-datatable .p-datatable-thead > tr:first-child > th:first-child {
+  border-top-left-radius: 0.5rem;
+}
+
+.p-datatable .p-datatable-thead > tr:first-child > th:last-child {
+  border-top-right-radius: 0.5rem;
 }
 
 /* ===== Print Styles ===== */

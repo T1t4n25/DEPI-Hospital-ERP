@@ -1,27 +1,4 @@
-export interface InventoryDetailModel {
-    medicationID: number;
-    medicationName: string;
-    barCode: string;
-    description: string;
-    cost: number;
-    quantity: number;
-    expiryDate: string;
-}
-
-export interface InventoryListModel {
-    medicationID: number;
-    medicationName: string;
-    barCode: string;
-    quantity: number;
-    expiryDate: string;
-}
-
-export interface CreateInventoryModel {
-    medicationID: number;
-    quantity: number;
-    expiryDate: string;
-}
-
-export interface UpdateInventoryModel extends CreateInventoryModel {
-    medicationID: number;
-}
+export * from './inventory-detail.model';
+export * from './inventory-list.model';
+export * from './create-inventory.model';
+export * from './update-inventory.model';

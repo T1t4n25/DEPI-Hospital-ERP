@@ -20,8 +20,9 @@
     <div class="mb-4">
       <span class="p-input-icon-left w-full md:w-96">
         <i class="pi pi-search"></i>
-        <input type="text" pInputText placeholder="Search by patient, doctor, or service..." [(ngModel)]="searchTerm"
-          class="w-full" />
+          <input type="text" pInputText placeholder="Search by patient, doctor, or service..." 
+                 [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)"
+                 class="w-full" />
       </span>
     </div>
 

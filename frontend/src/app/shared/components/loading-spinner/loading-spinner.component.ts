@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
@@ -6,8 +6,9 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
   selector: 'app-loading-spinner',
   standalone: true,
   imports: [CommonModule, ProgressSpinnerModule],
-  templateUrl: './loading-spinner.html',
-  styleUrl: './loading-spinner.css'
+  templateUrl: './loading-spinner.component.html',
+  styleUrl: './loading-spinner.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoadingSpinnerComponent {
 }
