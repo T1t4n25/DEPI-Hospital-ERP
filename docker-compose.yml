@@ -6,11 +6,9 @@ services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2025-latest
     container_name: hospitalerp-sqlserver
-    # env_file: HospitalERP.API/.env  # Optional: uncomment to use .env file
+    env_file: HospitalERP.API/.env  # Optional: uncomment to use .env file
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=${DB_PASSWORD}
-      - MSSQL_USER=${DB_USER}
       - MSSQL_PID=Developer
     ports:
       - "${DB_PORT}:1433"
@@ -74,8 +72,8 @@ services:
       - DB_USER=${DB_USER:-sa}
       - DB_PASSWORD=${DB_PASSWORD:-YourStrongPassword123}
       - DB_CONNECTION_STRING=${DB_CONNECTION_STRING:-Server=sqlserver;Database=HospitalERP;User Id=sa;Password=YourStrongPassword123;TrustServerCertificate=true;MultipleActiveResultSets=true;}
-      - KEYCLOAK_AUTHORITY=${KEYCLOAK_AUTHORITY:-http://keycloak:8080/realms/hospital-erp}
-      - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE:-hospital-erp-api,account}
+      - KEYCLOAK_AUTHORITY=${KEYCLOAK_AUTHORITY:-http://localhost:8080/realms/hospital-erp}
+      - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE:-hospital-erp-api,account,hospital-erp}
       - KEYCLOAK_REQUIRE_HTTPS=${KEYCLOAK_REQUIRE_HTTPS:-false}
     ports:
       - "${API_PORT:-5037}:5037"

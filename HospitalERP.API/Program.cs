@@ -70,7 +70,7 @@ var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "YourStron
 
 var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") 
     ?? builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? $"Server={dbServer};Database={dbDatabase};User Id={dbUser};Password={dbPassword};TrustServerCertificate=true;MultipleActiveResultSets=true;";
+    ?? $"Server={dbServer},{dbPort};Database={dbDatabase};User Id={dbUser};Password={dbPassword};TrustServerCertificate=true;MultipleActiveResultSets=true;";
 
 builder.Services.AddDbContext<HospitalDbContext>(options =>
     options.UseSqlServer(connectionString));
