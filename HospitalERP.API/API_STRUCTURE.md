@@ -1,44 +1,54 @@
 # Hospital ERP API Structure
 
 ## Overview
+
 This document describes the API structure that has been created for the Hospital ERP System. The API follows **Vertical Slice Architecture** with **CQRS pattern**.
 
 ## Database Schema
 
 ### All Entities Created
+
 ✅ **Lookup Tables:**
+
 - `Gender` - GenderID, GenderName
-- `BloodType` - BloodTypeID, BloodTypeName  
+- `BloodType` - BloodTypeID, BloodTypeName
 - `Role` - RoleID, RoleName
 - `InvoiceType` - InvoiceTypeID, InvoiceName
 - `PaymentStatus` - PaymentStatusID, StatusName
 - `Diagnosis` - DiagnosesID, Diagnoses
 
 ✅ **Core Entities:**
+
 - `Patient` - PatientID, FirstName, LastName, DateOfBirth, GenderID, BloodTypeID, Address, ContactNumber
 - `Employee` - EmployeeID, FirstName, LastName, GenderID, RoleID, DepartmentID, ContactNumber, HireDate
 - `Department` - DepartmentID, DepartmentName, ManagerID
 - `EmployeeSchedule` - ScheduleID, EmployeeID, ShiftStart, ShiftEnd
 
 ✅ **Medical Records:**
+
 - `MedicalRecord` - RecordID, PatientID, DoctorID, Diagnosesid, DiagnoseDate
 - `Treatment` - TreatmentID, DiagnosesID, TreatmentDescription
 
 ✅ **Appointments & Services:**
+
 - `Service` - ServiceID, ServiceName, Cost, DepartmentID
 - `Appointment` - AppointmentID, PatientID, DoctorID, ServiceID, AppointmentDateTime, Status
 
 ✅ **Medications & Inventory:**
+
 - `Medication` - MedicationID, BarCode, Name, Description, Cost
 - `Inventory` - MedicationID, Quantity, ExpiryDate
 
 ✅ **Invoices & Billing:**
+
 - `Invoice` - InvoiceID, PatientID, InvoiceTypeID, InvoiceDate, TotalAmount, PaymentStatusID, PayDate
 - `HospitalInvoiceItem` - InvoiceItemID, InvoiceID, ServiceID, LineTotal
 - `MedicationInvoiceItem` - InvoiceItemID, InvoiceID, MedicationID, Quantity, LineTotal
 
 ### DbContext Configuration
+
 ✅ All DbSets configured with:
+
 - Foreign key relationships
 - Delete behaviors (Restrict/Cascade)
 - Indexes on searchable fields
@@ -49,6 +59,7 @@ This document describes the API structure that has been created for the Hospital
 ### ✅ Fully Implemented Features
 
 #### **Patients** (Complete CRUD)
+
 - **DTOs:** ✅ CreatePatientDto, UpdatePatientDto, PatientListDto, PatientDetailDto
 - **Queries:** ✅ GetAllPatientsQuery, GetPatientByIdQuery
 - **Commands:** ✅ CreatePatientCommand, UpdatePatientCommand, DeletePatientCommand
@@ -64,6 +75,7 @@ This document describes the API structure that has been created for the Hospital
 ### ✅ Fully Implemented Features
 
 #### **Departments** (Complete CRUD)
+
 - **DTOs:** ✅ CreateDepartmentDto, UpdateDepartmentDto, DepartmentListDto, DepartmentDetailDto
 - **Queries:** ✅ GetAllDepartmentsQuery, GetDepartmentByIdQuery
 - **Commands:** ✅ CreateDepartmentCommand, UpdateDepartmentCommand, DeleteDepartmentCommand
@@ -78,6 +90,7 @@ This document describes the API structure that has been created for the Hospital
   - `DELETE /api/departments/{id}` - Delete department (Admin only)
 
 #### **Services** (Complete CRUD)
+
 - **DTOs:** ✅ CreateServiceDto, UpdateServiceDto, ServiceListDto, ServiceDetailDto
 - **Queries:** ✅ GetAllServicesQuery, GetServiceByIdQuery
 - **Commands:** ✅ CreateServiceCommand, UpdateServiceCommand, DeleteServiceCommand
@@ -92,6 +105,7 @@ This document describes the API structure that has been created for the Hospital
   - `DELETE /api/services/{id}` - Delete service (Admin only)
 
 #### **Employees** (Complete CRUD)
+
 - **DTOs:** ✅ CreateEmployeeDto, UpdateEmployeeDto, EmployeeListDto, EmployeeDetailDto
 - **Queries:** ✅ GetAllEmployeesQuery, GetEmployeeByIdQuery
 - **Commands:** ✅ CreateEmployeeCommand, UpdateEmployeeCommand, DeleteEmployeeCommand
@@ -106,6 +120,7 @@ This document describes the API structure that has been created for the Hospital
   - `DELETE /api/employees/{id}` - Delete employee (Admin only)
 
 #### **Appointments** (Complete CRUD)
+
 - **DTOs:** ✅ CreateAppointmentDto, UpdateAppointmentDto, AppointmentListDto, AppointmentDetailDto
 - **Queries:** ✅ GetAllAppointmentsQuery, GetAppointmentByIdQuery
 - **Commands:** ✅ CreateAppointmentCommand, UpdateAppointmentCommand, DeleteAppointmentCommand
@@ -120,6 +135,7 @@ This document describes the API structure that has been created for the Hospital
   - `DELETE /api/appointments/{id}` - Delete appointment (Admin only)
 
 #### **Medical Records** (Complete CRUD)
+
 - **DTOs:** ✅ CreateMedicalRecordDto, UpdateMedicalRecordDto, MedicalRecordListDto, MedicalRecordDetailDto
 - **Queries:** ✅ GetAllMedicalRecordsQuery, GetMedicalRecordByIdQuery
 - **Commands:** ✅ CreateMedicalRecordCommand, UpdateMedicalRecordCommand, DeleteMedicalRecordCommand
@@ -134,6 +150,7 @@ This document describes the API structure that has been created for the Hospital
   - `DELETE /api/medicalrecords/{id}` - Delete medical record (Admin only)
 
 #### **Medications** (Complete CRUD)
+
 - **DTOs:** ✅ CreateMedicationDto, UpdateMedicationDto, MedicationListDto, MedicationDetailDto
 - **Queries:** ✅ GetAllMedicationsQuery, GetMedicationByIdQuery
 - **Commands:** ✅ CreateMedicationCommand, UpdateMedicationCommand, DeleteMedicationCommand
@@ -148,6 +165,7 @@ This document describes the API structure that has been created for the Hospital
   - `DELETE /api/medications/{id}` - Delete medication (Admin only)
 
 #### **Inventory** (Complete CRUD)
+
 - **DTOs:** ✅ CreateInventoryDto, UpdateInventoryDto, InventoryListDto, InventoryDetailDto
 - **Queries:** ✅ GetAllInventoryQuery, GetInventoryByIdQuery
 - **Commands:** ✅ CreateInventoryCommand, UpdateInventoryCommand
@@ -161,6 +179,7 @@ This document describes the API structure that has been created for the Hospital
   - `PUT /api/inventory/{id}` - Update inventory (Admin, Pharmacist)
 
 #### **Invoices** (Complete CRUD)
+
 - **DTOs:** ✅ CreateInvoiceDto, UpdateInvoiceDto, InvoiceListDto, InvoiceDetailDto (includes nested items)
 - **Queries:** ✅ GetAllInvoicesQuery, GetInvoiceByIdQuery
 - **Commands:** ✅ CreateInvoiceCommand, UpdateInvoicePaymentStatusCommand
@@ -174,6 +193,7 @@ This document describes the API structure that has been created for the Hospital
   - `PUT /api/invoices/{id}/payment-status` - Update payment status (Admin, Accountant, Receptionist)
 
 #### **Users** (Admin)
+
 - **DTOs:** ⚠️ Placeholder (user management via Keycloak)
 - **Controller:** ✅ Placeholder controller
 - **AutoMapper:** ✅ UsersProfile (placeholder)
@@ -181,11 +201,13 @@ This document describes the API structure that has been created for the Hospital
 ## API Endpoints Structure
 
 All endpoints follow this pattern:
+
 - **Base URL:** `/api/{feature-name}`
 - **Authorization:** Keycloak JWT Bearer tokens
 - **Roles:** Defined per endpoint (see `.cursorrules`)
 
 ### Example: Patients Feature
+
 ```
 GET    /api/patients?pageNumber=1&pageSize=10&searchTerm=john
 GET    /api/patients/{id}
@@ -197,14 +219,17 @@ DELETE /api/patients/{id}
 ## Common Components
 
 ### ✅ Pagination
+
 - `QueryParams` - Reusable pagination parameters
 - `PaginatedResponse<T>` - Standard paginated response
 
 ### ✅ Exceptions
+
 - `NotFoundException` - For 404 errors
 - `BadRequestException` - For 400 errors
 
 ### ✅ Validation
+
 - **FluentValidation** - All Create/Update DTOs have validators
 - Automatic validation via `AddFluentValidationAutoValidation()`
 - Returns 400 Bad Request with detailed error messages for invalid inputs
@@ -220,6 +245,7 @@ The frontend team can start working with:
 5. **API structure** - All endpoints follow consistent patterns
 
 ### Recommended Frontend Development Order:
+
 1. ✅ **Patients** - Fully implemented with validation
 2. ✅ **Departments** - Simple CRUD, good next step
 3. ✅ **Services** - Simple CRUD
@@ -233,17 +259,22 @@ The frontend team can start working with:
 ## Testing the API
 
 ### Swagger UI
+
 After running the API, access Swagger at:
+
 - **Development:** `https://localhost:5001/swagger` or `http://localhost:5000/swagger`
 
 ### Authentication
+
 All endpoints require JWT Bearer token from Keycloak:
+
 - Add `Authorization: Bearer {token}` header to requests
 - Configure Keycloak in `appsettings.json`
 
 ## Database Migration
 
 To create the database, run:
+
 ```bash
 cd HospitalERP.API
 dotnet ef migrations add InitialCreate
@@ -253,4 +284,3 @@ dotnet ef database update
 This will create all tables with the configured relationships and indexes.
 
 **Note:** The database is automatically seeded with test data when running in Development mode.
-
