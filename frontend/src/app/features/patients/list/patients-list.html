@@ -14,19 +14,13 @@
     <div class="mb-4">
       <span class="p-input-icon-left w-full">
         <i class="pi pi-search"></i>
-        <input 
-          type="text" 
-          pInputText 
-          placeholder="Search patients..." 
-          [(ngModel)]="searchTerm"
-          class="w-full"
-        />
+        <input type="text" pInputText placeholder="Search patients..." [(ngModel)]="searchTerm" class="w-full" />
       </span>
     </div>
 
-    <p-table [value]="filteredPatients" [paginator]="true" [rows]="10" [showCurrentPageReport]="true" 
-             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-             [rowsPerPageOptions]="[10, 25, 50]">
+    <p-table [value]="filteredPatients()" [paginator]="true" [rows]="10" [loading]="loading()"
+      [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [rowsPerPageOptions]="[10, 25, 50]">
       <ng-template pTemplate="header">
         <tr>
           <th>ID</th>
@@ -40,23 +34,24 @@
       </ng-template>
       <ng-template pTemplate="body" let-patient>
         <tr>
-          <td>{{ patient.id }}</td>
+          <td>{{ patient.patientID }}</td>
           <td>{{ patient.firstName }} {{ patient.lastName }}</td>
-          <td>{{ patient.dateOfBirth }}</td>
+          <td>{{ patient.dateOfBirth | date:'mediumDate' }}</td>
           <td>
-            <p-tag [value]="patient.gender" [severity]="patient.gender === 'Male' ? 'info' : 'success'"></p-tag>
+            <p-tag [value]="patient.genderName" [severity]="patient.genderName === 'Male' ? 'info' : 'success'"></p-tag>
           </td>
           <td>
-            <p-tag [value]="patient.bloodType" severity="danger"></p-tag>
+            <p-tag [value]="patient.bloodTypeName" severity="danger"></p-tag>
           </td>
           <td>{{ patient.contactNumber }}</td>
           <td>
             <div class="flex gap-2">
-              <a [routerLink]="['/patients', patient.id]" class="p-button p-button-text p-button-sm">
+              <a [routerLink]="['/patients', patient.patientID]" class="p-button p-button-text p-button-sm">
                 <i class="pi pi-eye"></i>
               </a>
               <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"></button>
-              <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger"></button>
+              <button pButton pRipple type="button" icon="pi pi-trash"
+                class="p-button-text p-button-sm p-button-danger"></button>
             </div>
           </td>
         </tr>
@@ -64,4 +59,3 @@
     </p-table>
   </div>
 </div>
-

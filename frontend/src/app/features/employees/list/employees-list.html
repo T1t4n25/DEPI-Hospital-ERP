@@ -14,17 +14,11 @@
     <div class="mb-4">
       <span class="p-input-icon-left w-full">
         <i class="pi pi-search"></i>
-        <input 
-          type="text" 
-          pInputText 
-          placeholder="Search employees..." 
-          [(ngModel)]="searchTerm"
-          class="w-full"
-        />
+        <input type="text" pInputText placeholder="Search employees..." [(ngModel)]="searchTerm" class="w-full" />
       </span>
     </div>
 
-    <p-table [value]="filteredEmployees" [paginator]="true" [rows]="10">
+    <p-table [value]="filteredEmployees()" [paginator]="true" [rows]="10" [loading]="loading()">
       <ng-template pTemplate="header">
         <tr>
           <th>ID</th>
@@ -32,25 +26,24 @@
           <th>Role</th>
           <th>Department</th>
           <th>Contact</th>
-          <th>Hire Date</th>
           <th>Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-employee>
         <tr>
-          <td>{{ employee.id }}</td>
+          <td>{{ employee.employeeID }}</td>
           <td>{{ employee.firstName }} {{ employee.lastName }}</td>
-          <td><p-tag [value]="employee.role" severity="info"></p-tag></td>
-          <td>{{ employee.department }}</td>
+          <td><p-tag [value]="employee.roleName" severity="info"></p-tag></td>
+          <td>{{ employee.departmentName }}</td>
           <td>{{ employee.contactNumber }}</td>
-          <td>{{ employee.hireDate }}</td>
           <td>
             <div class="flex gap-2">
-              <a [routerLink]="['/employees', employee.id]" class="p-button p-button-text p-button-sm">
+              <a [routerLink]="['/employees', employee.employeeID]" class="p-button p-button-text p-button-sm">
                 <i class="pi pi-eye"></i>
               </a>
               <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"></button>
-              <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger"></button>
+              <button pButton pRipple type="button" icon="pi pi-trash"
+                class="p-button-text p-button-sm p-button-danger"></button>
             </div>
           </td>
         </tr>
@@ -58,4 +51,3 @@
     </p-table>
   </div>
 </div>
-

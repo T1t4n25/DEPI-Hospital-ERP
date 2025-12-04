@@ -7,7 +7,7 @@
         <input type="text" pInputText placeholder="Search medications..." [(ngModel)]="searchTerm" class="w-full" />
       </span>
     </div>
-    <p-table [value]="medications" [paginator]="true" [rows]="10">
+    <p-table [value]="filteredMedications()" [paginator]="true" [rows]="10" [loading]="loading()">
       <ng-template pTemplate="header">
         <tr>
           <th>ID</th>
@@ -21,16 +21,18 @@
       </ng-template>
       <ng-template pTemplate="body" let-medication>
         <tr>
-          <td>{{ medication.id }}</td>
+          <td>{{ medication.medicationID }}</td>
           <td>{{ medication.name }}</td>
-          <td>{{ medication.barcode }}</td>
-          <td>{{ medication.cost }}</td>
-          <td>{{ medication.stock }}</td>
-          <td><p-tag [value]="medication.status" [severity]="medication.status === 'In Stock' ? 'success' : 'warn'"></p-tag></td>
+          <td>{{ medication.barCode }}</td>
+          <td>{{ medication.cost | currency }}</td>
+          <td>{{ medication.quantity }}</td>
+          <td><p-tag [value]="getStockStatus(medication.quantity)"
+              [severity]="getStockSeverity(medication.quantity)"></p-tag></td>
           <td>
             <div class="flex gap-2">
               <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"></button>
-              <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger"></button>
+              <button pButton pRipple type="button" icon="pi pi-trash"
+                class="p-button-text p-button-sm p-button-danger"></button>
             </div>
           </td>
         </tr>
@@ -38,4 +40,3 @@
     </p-table>
   </div>
 </div>
-

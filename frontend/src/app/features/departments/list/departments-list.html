@@ -18,26 +18,25 @@
       </span>
     </div>
 
-    <p-table [value]="filteredDepartments" [paginator]="true" [rows]="10">
+    <p-table [value]="filteredDepartments()" [paginator]="true" [rows]="10" [loading]="loading()">
       <ng-template pTemplate="header">
         <tr>
           <th>ID</th>
           <th>Name</th>
           <th>Manager</th>
-          <th>Employees</th>
           <th>Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-department>
         <tr>
-          <td>{{ department.id }}</td>
-          <td>{{ department.name }}</td>
-          <td>{{ department.manager }}</td>
-          <td>{{ department.employeeCount }}</td>
+          <td>{{ department.departmentID }}</td>
+          <td>{{ department.departmentName }}</td>
+          <td>{{ department.managerName || 'N/A' }}</td>
           <td>
             <div class="flex gap-2">
               <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"></button>
-              <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger"></button>
+              <button pButton pRipple type="button" icon="pi pi-trash"
+                class="p-button-text p-button-sm p-button-danger"></button>
             </div>
           </td>
         </tr>
@@ -45,4 +44,3 @@
     </p-table>
   </div>
 </div>
-

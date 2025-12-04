@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -7,6 +7,10 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { RippleModule } from 'primeng/ripple';
+import { InventoryService } from '../services/inventory.service';
+import { InventoryListModel } from '../models';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-inventory-list',
@@ -16,11 +20,66 @@ import { RippleModule } from 'primeng/ripple';
   styleUrl: './inventory-list.css'
 })
 export class InventoryListComponent {
-  inventory = [
-    { id: 1, medication: 'Aspirin', quantity: 150, expiryDate: '2025-12-31', status: 'Good' },
-    { id: 2, medication: 'Paracetamol', quantity: 45, expiryDate: '2024-06-30', status: 'Expiring Soon' }
-  ];
+  private readonly service = inject(InventoryService);
 
-  searchTerm = '';
+  readonly loading = signal<boolean>(false);
+  readonly error = signal<string | null>(null);
+  readonly inventory = signal<InventoryListModel[]>([]);
+  readonly searchTerm = signal<string>('');
+
+  readonly filteredInventory = computed(() => {
+    const items = this.inventory();
+    const term = this.searchTerm().toLowerCase();
+    if (!term) return items;
+
+    return items.filter(item =>
+      item.medicationName.toLowerCase().includes(term) ||
+      item.barCode.toLowerCase().includes(term)
+    );
+  });
+
+  constructor() {
+    this.loadInventory();
+  }
+
+  loadInventory() {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.service.getAll()
+      .pipe(
+        takeUntilDestroyed(),
+        catchError((err: Error) => {
+          this.error.set(err.message);
+          return of({ data: [], pageNumber: 1, pageSize: 10, totalCount: 0, totalPages: 0, hasPreviousPage: false, hasNextPage: false });
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.inventory.set(response.data);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false)
+      });
+  }
+
+  getStatusSeverity(expiryDate: string): 'success' | 'warn' | 'danger' {
+    const expiry = new Date(expiryDate);
+    const today = new Date();
+    const daysUntilExpiry = Math.floor((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysUntilExpiry < 0) return 'danger';
+    if (daysUntilExpiry < 90) return 'warn';
+    return 'success';
+  }
+
+  getStatusLabel(expiryDate: string): string {
+    const expiry = new Date(expiryDate);
+    const today = new Date();
+    const daysUntilExpiry = Math.floor((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysUntilExpiry < 0) return 'Expired';
+    if (daysUntilExpiry < 90) return 'Expiring Soon';
+    return 'Good';
+  }
 }
-

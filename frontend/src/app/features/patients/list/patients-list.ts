@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -7,6 +7,10 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { RippleModule } from 'primeng/ripple';
+import { PatientsService } from '../services/patients.service';
+import { PatientListModel } from '../models/patient-list.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-patients-list',
@@ -16,24 +20,48 @@ import { RippleModule } from 'primeng/ripple';
   styleUrl: './patients-list.css'
 })
 export class PatientsListComponent {
-  patients = [
-    { id: 1, firstName: 'John', lastName: 'Doe', dateOfBirth: '1985-05-15', gender: 'Male', bloodType: 'O+', contactNumber: '555-0101', address: '123 Main St' },
-    { id: 2, firstName: 'Jane', lastName: 'Smith', dateOfBirth: '1990-08-22', gender: 'Female', bloodType: 'A+', contactNumber: '555-0102', address: '456 Oak Ave' },
-    { id: 3, firstName: 'Michael', lastName: 'Johnson', dateOfBirth: '1978-12-03', gender: 'Male', bloodType: 'B+', contactNumber: '555-0103', address: '789 Pine Rd' },
-    { id: 4, firstName: 'Sarah', lastName: 'Williams', dateOfBirth: '1992-03-18', gender: 'Female', bloodType: 'AB+', contactNumber: '555-0104', address: '321 Elm St' },
-    { id: 5, firstName: 'David', lastName: 'Brown', dateOfBirth: '1988-07-25', gender: 'Male', bloodType: 'O-', contactNumber: '555-0105', address: '654 Maple Dr' }
-  ];
+  private readonly service = inject(PatientsService);
 
-  searchTerm = '';
+  readonly loading = signal<boolean>(false);
+  readonly error = signal<string | null>(null);
+  readonly patients = signal<PatientListModel[]>([]);
+  readonly searchTerm = signal<string>('');
 
-  get filteredPatients() {
-    if (!this.searchTerm) return this.patients;
-    const term = this.searchTerm.toLowerCase();
-    return this.patients.filter(p => 
+  readonly filteredPatients = computed(() => {
+    const items = this.patients();
+    const term = this.searchTerm().toLowerCase();
+    if (!term) return items;
+
+    return items.filter(p =>
       p.firstName.toLowerCase().includes(term) ||
       p.lastName.toLowerCase().includes(term) ||
       p.contactNumber.includes(term)
     );
+  });
+
+  constructor() {
+    this.loadPatients();
+  }
+
+  loadPatients() {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.service.getAll()
+      .pipe(
+        takeUntilDestroyed(),
+        catchError((err: Error) => {
+          this.error.set(err.message);
+          return of({ data: [], pageNumber: 1, pageSize: 10, totalCount: 0, totalPages: 0, hasPreviousPage: false, hasNextPage: false });
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.patients.set(response.data);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false)
+      });
   }
 }
 

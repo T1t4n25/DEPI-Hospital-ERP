@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -7,6 +7,10 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { RippleModule } from 'primeng/ripple';
+import { InvoicesService } from '../services/invoices.service';
+import { InvoiceListModel } from '../models';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-invoices-list',
@@ -16,15 +20,51 @@ import { RippleModule } from 'primeng/ripple';
   styleUrl: './invoices-list.css'
 })
 export class InvoicesListComponent {
-  invoices = [
-    { id: 1, patient: 'John Doe', date: '2024-01-15', totalAmount: '$250', paymentStatus: 'Paid' },
-    { id: 2, patient: 'Jane Smith', date: '2024-01-16', totalAmount: '$150', paymentStatus: 'Pending' }
-  ];
+  private readonly service = inject(InvoicesService);
 
-  searchTerm = '';
+  readonly loading = signal<boolean>(false);
+  readonly error = signal<string | null>(null);
+  readonly invoices = signal<InvoiceListModel[]>([]);
+  readonly searchTerm = signal<string>('');
 
-  getStatusSeverity(status: string) {
-    return status === 'Paid' ? 'success' : 'warn';
+  readonly filteredInvoices = computed(() => {
+    const items = this.invoices();
+    const term = this.searchTerm().toLowerCase();
+    if (!term) return items;
+
+    return items.filter(inv =>
+      inv.patientName.toLowerCase().includes(term) ||
+      inv.invoiceTypeName.toLowerCase().includes(term)
+    );
+  });
+
+  constructor() {
+    this.loadInvoices();
+  }
+
+  loadInvoices() {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.service.getAll()
+      .pipe(
+        takeUntilDestroyed(),
+        catchError((err: Error) => {
+          this.error.set(err.message);
+          return of({ data: [], pageNumber: 1, pageSize: 10, totalCount: 0, totalPages: 0, hasPreviousPage: false, hasNextPage: false });
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.invoices.set(response.data);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false)
+      });
+  }
+
+  getStatusSeverity(status: string): 'success' | 'warn' {
+    return status.toLowerCase().includes('paid') ? 'success' : 'warn';
   }
 }
 

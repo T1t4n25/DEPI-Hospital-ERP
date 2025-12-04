@@ -4,4 +4,3 @@ export interface DepartmentDetailModel {
   managerID?: number;
   managerName?: string;
 }
-

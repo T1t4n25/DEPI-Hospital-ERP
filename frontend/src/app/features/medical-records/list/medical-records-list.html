@@ -14,17 +14,11 @@
     <div class="mb-4">
       <span class="p-input-icon-left w-full">
         <i class="pi pi-search"></i>
-        <input 
-          type="text" 
-          pInputText 
-          placeholder="Search records..." 
-          [(ngModel)]="searchTerm"
-          class="w-full"
-        />
+        <input type="text" pInputText placeholder="Search records..." [(ngModel)]="searchTerm" class="w-full" />
       </span>
     </div>
 
-    <p-table [value]="filteredRecords" [paginator]="true" [rows]="10">
+    <p-table [value]="filteredRecords()" [paginator]="true" [rows]="10" [loading]="loading()">
       <ng-template pTemplate="header">
         <tr>
           <th>ID</th>
@@ -37,18 +31,19 @@
       </ng-template>
       <ng-template pTemplate="body" let-record>
         <tr>
-          <td>{{ record.id }}</td>
-          <td>{{ record.patient }}</td>
-          <td>{{ record.doctor }}</td>
+          <td>{{ record.recordID }}</td>
+          <td>{{ record.patientName }}</td>
+          <td>{{ record.doctorName }}</td>
           <td>{{ record.diagnosis }}</td>
-          <td>{{ record.date }}</td>
+          <td>{{ record.diagnoseDate | date:'mediumDate' }}</td>
           <td>
             <div class="flex gap-2">
-              <a [routerLink]="['/medical-records', record.id]" class="p-button p-button-text p-button-sm">
+              <a [routerLink]="['/medical-records', record.recordID]" class="p-button p-button-text p-button-sm">
                 <i class="pi pi-eye"></i>
               </a>
               <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"></button>
-              <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger"></button>
+              <button pButton pRipple type="button" icon="pi pi-trash"
+                class="p-button-text p-button-sm p-button-danger"></button>
             </div>
           </td>
         </tr>
@@ -56,4 +51,3 @@
     </p-table>
   </div>
 </div>
-

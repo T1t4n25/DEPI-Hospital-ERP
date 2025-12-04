@@ -3,4 +3,3 @@ export interface DepartmentListModel {
   departmentName: string;
   managerName?: string;
 }
-

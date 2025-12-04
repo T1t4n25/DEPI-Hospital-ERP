@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -7,6 +7,10 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { RippleModule } from 'primeng/ripple';
+import { AppointmentsService } from '../services/appointments.service';
+import { AppointmentListModel } from '../models/appointment-list.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-appointments-list',
@@ -16,26 +20,52 @@ import { RippleModule } from 'primeng/ripple';
   styleUrl: './appointments-list.css'
 })
 export class AppointmentsListComponent {
-  appointments = [
-    { id: 1, patient: 'John Doe', doctor: 'Dr. Smith', service: 'General Checkup', date: '2024-01-15', time: '10:00 AM', status: 'Scheduled' },
-    { id: 2, patient: 'Jane Smith', doctor: 'Dr. Johnson', service: 'Cardiology', date: '2024-01-16', time: '2:00 PM', status: 'Completed' },
-    { id: 3, patient: 'Michael Johnson', doctor: 'Dr. Williams', service: 'Orthopedics', date: '2024-01-17', time: '9:00 AM', status: 'Cancelled' }
-  ];
+  private readonly service = inject(AppointmentsService);
 
-  searchTerm = '';
+  readonly loading = signal<boolean>(false);
+  readonly error = signal<string | null>(null);
+  readonly appointments = signal<AppointmentListModel[]>([]);
+  readonly searchTerm = signal<string>('');
 
-  get filteredAppointments() {
-    if (!this.searchTerm) return this.appointments;
-    const term = this.searchTerm.toLowerCase();
-    return this.appointments.filter(a => 
-      a.patient.toLowerCase().includes(term) ||
-      a.doctor.toLowerCase().includes(term) ||
-      a.service.toLowerCase().includes(term)
+  readonly filteredAppointments = computed(() => {
+    const items = this.appointments();
+    const term = this.searchTerm().toLowerCase();
+    if (!term) return items;
+
+    return items.filter(a =>
+      a.patientName.toLowerCase().includes(term) ||
+      a.doctorName.toLowerCase().includes(term) ||
+      a.serviceName.toLowerCase().includes(term)
     );
+  });
+
+  constructor() {
+    this.loadAppointments();
+  }
+
+  loadAppointments() {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.service.getAll()
+      .pipe(
+        takeUntilDestroyed(),
+        catchError((err: Error) => {
+          this.error.set(err.message);
+          return of({ data: [], pageNumber: 1, pageSize: 10, totalCount: 0, totalPages: 0, hasPreviousPage: false, hasNextPage: false });
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.appointments.set(response.data);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false)
+      });
   }
 
   getStatusSeverity(status: string) {
-    switch(status) {
+    switch (status) {
       case 'Scheduled': return 'info';
       case 'Completed': return 'success';
       case 'Cancelled': return 'danger';

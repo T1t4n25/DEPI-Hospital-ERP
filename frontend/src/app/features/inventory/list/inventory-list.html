@@ -11,11 +11,12 @@
   </div>
 
   <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-    <p-table [value]="inventory" [paginator]="true" [rows]="10">
+    <p-table [value]="filteredInventory()" [paginator]="true" [rows]="10" [loading]="loading()">
       <ng-template pTemplate="header">
         <tr>
           <th>ID</th>
           <th>Medication</th>
+          <th>Barcode</th>
           <th>Quantity</th>
           <th>Expiry Date</th>
           <th>Status</th>
@@ -24,11 +25,13 @@
       </ng-template>
       <ng-template pTemplate="body" let-item>
         <tr>
-          <td>{{ item.id }}</td>
-          <td>{{ item.medication }}</td>
+          <td>{{ item.medicationID }}</td>
+          <td>{{ item.medicationName }}</td>
+          <td>{{ item.barCode }}</td>
           <td>{{ item.quantity }}</td>
-          <td>{{ item.expiryDate }}</td>
-          <td><p-tag [value]="item.status" [severity]="item.status === 'Good' ? 'success' : 'warn'"></p-tag></td>
+          <td>{{ item.expiryDate | date:'mediumDate' }}</td>
+          <td><p-tag [value]="getStatusLabel(item.expiryDate)" [severity]="getStatusSeverity(item.expiryDate)"></p-tag>
+          </td>
           <td>
             <div class="flex gap-2">
               <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"></button>
@@ -39,4 +42,3 @@
     </p-table>
   </div>
 </div>
-

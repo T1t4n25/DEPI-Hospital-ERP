@@ -20,44 +20,37 @@
     <div class="mb-4">
       <span class="p-input-icon-left w-full">
         <i class="pi pi-search"></i>
-        <input 
-          type="text" 
-          pInputText 
-          placeholder="Search appointments..." 
-          [(ngModel)]="searchTerm"
-          class="w-full"
-        />
+        <input type="text" pInputText placeholder="Search appointments..." [(ngModel)]="searchTerm" class="w-full" />
       </span>
     </div>
 
-    <p-table [value]="filteredAppointments" [paginator]="true" [rows]="10">
+    <p-table [value]="filteredAppointments()" [paginator]="true" [rows]="10" [loading]="loading()">
       <ng-template pTemplate="header">
         <tr>
           <th>ID</th>
           <th>Patient</th>
           <th>Doctor</th>
           <th>Service</th>
-          <th>Date</th>
-          <th>Time</th>
+          <th>Date & Time</th>
           <th>Status</th>
           <th>Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-appointment>
         <tr>
-          <td>{{ appointment.id }}</td>
-          <td>{{ appointment.patient }}</td>
-          <td>{{ appointment.doctor }}</td>
-          <td>{{ appointment.service }}</td>
-          <td>{{ appointment.date }}</td>
-          <td>{{ appointment.time }}</td>
+          <td>{{ appointment.appointmentID }}</td>
+          <td>{{ appointment.patientName }}</td>
+          <td>{{ appointment.doctorName }}</td>
+          <td>{{ appointment.serviceName }}</td>
+          <td>{{ appointment.appointmentDateTime | date:'medium' }}</td>
           <td>
             <p-tag [value]="appointment.status" [severity]="getStatusSeverity(appointment.status)"></p-tag>
           </td>
           <td>
             <div class="flex gap-2">
               <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"></button>
-              <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger"></button>
+              <button pButton pRipple type="button" icon="pi pi-trash"
+                class="p-button-text p-button-sm p-button-danger"></button>
             </div>
           </td>
         </tr>
@@ -65,4 +58,3 @@
     </p-table>
   </div>
 </div>
-

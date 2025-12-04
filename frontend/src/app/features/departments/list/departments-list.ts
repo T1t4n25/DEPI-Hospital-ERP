@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -6,6 +6,10 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
+import { DepartmentsService } from '../services/departments.service';
+import { DepartmentListModel } from '../models';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-departments-list',
@@ -15,21 +19,47 @@ import { RippleModule } from 'primeng/ripple';
   styleUrl: './departments-list.css'
 })
 export class DepartmentsListComponent {
-  departments = [
-    { id: 1, name: 'Cardiology', manager: 'Dr. John Smith', employeeCount: 15 },
-    { id: 2, name: 'Pediatrics', manager: 'Dr. Jane Johnson', employeeCount: 12 },
-    { id: 3, name: 'Emergency', manager: 'Dr. Michael Williams', employeeCount: 20 }
-  ];
+  private readonly service = inject(DepartmentsService);
 
-  searchTerm = '';
+  readonly loading = signal<boolean>(false);
+  readonly error = signal<string | null>(null);
+  readonly departments = signal<DepartmentListModel[]>([]);
+  readonly searchTerm = signal<string>('');
 
-  get filteredDepartments() {
-    if (!this.searchTerm) return this.departments;
-    const term = this.searchTerm.toLowerCase();
-    return this.departments.filter(d => 
-      d.name.toLowerCase().includes(term) ||
-      d.manager.toLowerCase().includes(term)
+  readonly filteredDepartments = computed(() => {
+    const items = this.departments();
+    const term = this.searchTerm().toLowerCase();
+    if (!term) return items;
+
+    return items.filter(d =>
+      d.departmentName.toLowerCase().includes(term) ||
+      (d.managerName && d.managerName.toLowerCase().includes(term))
     );
+  });
+
+  constructor() {
+    this.loadDepartments();
+  }
+
+  loadDepartments() {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.service.getAll()
+      .pipe(
+        takeUntilDestroyed(),
+        catchError((err: Error) => {
+          this.error.set(err.message);
+          return of({ data: [], pageNumber: 1, pageSize: 10, totalCount: 0, totalPages: 0, hasPreviousPage: false, hasNextPage: false });
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.departments.set(response.data);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false)
+      });
   }
 }
 

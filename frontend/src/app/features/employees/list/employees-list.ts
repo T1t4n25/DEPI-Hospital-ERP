@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -7,6 +7,10 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { RippleModule } from 'primeng/ripple';
+import { EmployeesService } from '../services/employees.service';
+import { EmployeeListModel } from '../models/employee-list.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-employees-list',
@@ -16,23 +20,49 @@ import { RippleModule } from 'primeng/ripple';
   styleUrl: './employees-list.css'
 })
 export class EmployeesListComponent {
-  employees = [
-    { id: 1, firstName: 'Dr. John', lastName: 'Smith', role: 'Doctor', department: 'Cardiology', contactNumber: '555-1001', hireDate: '2020-01-15' },
-    { id: 2, firstName: 'Dr. Jane', lastName: 'Johnson', role: 'Doctor', department: 'Pediatrics', contactNumber: '555-1002', hireDate: '2019-03-20' },
-    { id: 3, firstName: 'Mary', lastName: 'Williams', role: 'Nurse', department: 'Emergency', contactNumber: '555-1003', hireDate: '2021-06-10' }
-  ];
+  private readonly service = inject(EmployeesService);
 
-  searchTerm = '';
+  readonly loading = signal<boolean>(false);
+  readonly error = signal<string | null>(null);
+  readonly employees = signal<EmployeeListModel[]>([]);
+  readonly searchTerm = signal<string>('');
 
-  get filteredEmployees() {
-    if (!this.searchTerm) return this.employees;
-    const term = this.searchTerm.toLowerCase();
-    return this.employees.filter(e => 
+  readonly filteredEmployees = computed(() => {
+    const items = this.employees();
+    const term = this.searchTerm().toLowerCase();
+    if (!term) return items;
+
+    return items.filter(e =>
       e.firstName.toLowerCase().includes(term) ||
       e.lastName.toLowerCase().includes(term) ||
-      e.role.toLowerCase().includes(term) ||
-      e.department.toLowerCase().includes(term)
+      e.roleName.toLowerCase().includes(term) ||
+      e.departmentName.toLowerCase().includes(term)
     );
+  });
+
+  constructor() {
+    this.loadEmployees();
+  }
+
+  loadEmployees() {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.service.getAll()
+      .pipe(
+        takeUntilDestroyed(),
+        catchError((err: Error) => {
+          this.error.set(err.message);
+          return of({ data: [], pageNumber: 1, pageSize: 10, totalCount: 0, totalPages: 0, hasPreviousPage: false, hasNextPage: false });
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.employees.set(response.data);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false)
+      });
   }
 }
 
