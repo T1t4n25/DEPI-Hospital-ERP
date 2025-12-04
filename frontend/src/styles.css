@@ -39,39 +39,243 @@ body {
   background: #555;
 }
 
-/* Responsive utilities */
-@media (max-width: 768px) {
-  .p-datatable .p-datatable-thead > tr > th {
-    font-size: 0.875rem;
-    padding: 0.5rem;
-  }
-  
-  .p-datatable .p-datatable-tbody > tr > td {
-    font-size: 0.875rem;
-    padding: 0.5rem;
-  }
+/* ===== PrimeNG Table Enhancements ===== */
+
+/* Table Header Styling */
+.p-datatable .p-datatable-thead > tr > th {
+  background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1rem;
+  border-bottom: 2px solid #e2e8f0;
 }
 
-/* PrimeNG customizations */
-.p-button {
-  font-weight: 500;
+/* Table Body Styling */
+.p-datatable .p-datatable-tbody > tr {
+  transition: all 0.2s ease;
 }
 
-.p-card {
+/* Striped Rows */
+.p-datatable .p-datatable-tbody > tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.p-datatable .p-datatable-tbody > tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+/* Hover Effect */
+.p-datatable .p-datatable-tbody > tr:hover {
+  background-color: #e0f2fe !important;
+  transform: scale(1.001);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Table Cell Styling */
+.p-datatable .p-datatable-tbody > tr > td {
+  padding: 0.875rem 1rem;
+  font-size: 0.9375rem;
+  color: #334155;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Table Loading State */
+.p-datatable .p-datatable-loading-overlay {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Empty Message Styling */
+.p-datatable .p-datatable-emptymessage > td {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #64748b;
+  font-size: 0.9375rem;
+}
+
+/* ===== Form Input Enhancements ===== */
+
+/* Input Text Fields */
+.p-inputtext {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  border: 1.5px solid #e2e8f0;
   border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  background-color: #ffffff;
 }
 
-.p-inputtext,
-.p-dropdown,
+.p-inputtext:enabled:hover {
+  border-color: #cbd5e1;
+}
+
+.p-inputtext:enabled:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.p-inputtext.ng-invalid.ng-dirty {
+  border-color: #ef4444;
+}
+
+.p-inputtext.ng-invalid.ng-dirty:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Dropdown Styling */
+.p-dropdown {
+  width: 100%;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  background-color: #ffffff;
+}
+
+.p-dropdown:not(.p-disabled):hover {
+  border-color: #cbd5e1;
+}
+
+.p-dropdown:not(.p-disabled).p-focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.p-dropdown-panel {
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.p-dropdown-item {
+  padding: 0.75rem 1rem;
+  transition: all 0.15s ease;
+}
+
+.p-dropdown-item:hover {
+  background-color: #f1f5f9;
+}
+
+.p-dropdown-item.p-highlight {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+/* Calendar/Date Picker */
 .p-calendar {
   width: 100%;
 }
 
-/* Print styles */
+.p-calendar .p-inputtext {
+  padding-right: 2.5rem;
+}
+
+.p-datepicker {
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  z-index: 1050 !important;
+}
+
+.p-datepicker-panel {
+  z-index: 1050 !important;
+}
+
+.p-datepicker table td > span {
+  border-radius: 0.375rem;
+}
+
+.p-datepicker table td > span.p-highlight {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+/* Ensure calendar overlay appears above other elements */
+.p-datepicker-overlay {
+  z-index: 1050 !important;
+}
+
+.p-component-overlay {
+  z-index: 1040 !important;
+}
+
+/* ===== Button Enhancements ===== */
+
+.p-button {
+  font-weight: 500;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  font-size: 0.9375rem;
+}
+
+.p-button:enabled:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.p-button:enabled:active {
+  transform: translateY(0);
+}
+
+.p-button-sm {
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+}
+
+/* ===== Tag Enhancements ===== */
+
+.p-tag {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+}
+
+/* ===== Card Styling ===== */
+
+.p-card {
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.p-card .p-card-body {
+  padding: 1.5rem;
+}
+
+/* ===== Responsive Utilities ===== */
+
+@media (max-width: 768px) {
+  .p-datatable .p-datatable-thead > tr > th {
+    font-size: 0.8125rem;
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .p-datatable .p-datatable-tbody > tr > td {
+    font-size: 0.875rem;
+    padding: 0.75rem 0.5rem;
+  }
+
+  .p-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* ===== Print Styles ===== */
+
 @media print {
   .sidebar,
   .header,
   .p-button {
     display: none !important;
+  }
+  
+  .p-datatable .p-datatable-tbody > tr:hover {
+    background-color: transparent !important;
+    transform: none;
+    box-shadow: none;
   }
 }

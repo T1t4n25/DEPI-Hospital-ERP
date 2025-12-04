@@ -18,40 +18,73 @@
 
   <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
     <div class="mb-4">
-      <span class="p-input-icon-left w-full">
+      <span class="p-input-icon-left w-full md:w-96">
         <i class="pi pi-search"></i>
-        <input type="text" pInputText placeholder="Search appointments..." [(ngModel)]="searchTerm" class="w-full" />
+        <input type="text" pInputText placeholder="Search by patient, doctor, or service..." [(ngModel)]="searchTerm"
+          class="w-full" />
       </span>
     </div>
 
-    <p-table [value]="filteredAppointments()" [paginator]="true" [rows]="10" [loading]="loading()">
+    <p-table [value]="filteredAppointments()" [paginator]="true" [rows]="10" [loading]="loading()"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} appointments"
+      [rowsPerPageOptions]="[10, 25, 50]" styleClass="p-datatable-striped">
       <ng-template pTemplate="header">
         <tr>
-          <th>ID</th>
-          <th>Patient</th>
-          <th>Doctor</th>
+          <th pSortableColumn="appointmentID">
+            ID <p-sortIcon field="appointmentID"></p-sortIcon>
+          </th>
+          <th pSortableColumn="patientName">
+            Patient <p-sortIcon field="patientName"></p-sortIcon>
+          </th>
+          <th pSortableColumn="doctorName">
+            Doctor <p-sortIcon field="doctorName"></p-sortIcon>
+          </th>
           <th>Service</th>
-          <th>Date & Time</th>
+          <th pSortableColumn="appointmentDateTime">
+            Date & Time <p-sortIcon field="appointmentDateTime"></p-sortIcon>
+          </th>
           <th>Status</th>
-          <th>Actions</th>
+          <th style="width: 120px">Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-appointment>
         <tr>
-          <td>{{ appointment.appointmentID }}</td>
-          <td>{{ appointment.patientName }}</td>
-          <td>{{ appointment.doctorName }}</td>
+          <td><span class="font-mono text-sm">{{ appointment.appointmentID }}</span></td>
+          <td>
+            <div class="font-medium text-gray-900">{{ appointment.patientName }}</div>
+          </td>
+          <td>
+            <div class="font-medium text-gray-900">{{ appointment.doctorName }}</div>
+          </td>
           <td>{{ appointment.serviceName }}</td>
-          <td>{{ appointment.appointmentDateTime | date:'medium' }}</td>
+          <td>
+            <div class="text-sm">
+              <div class="font-medium">{{ appointment.appointmentDateTime | date:'mediumDate' }}</div>
+              <div class="text-gray-500">{{ appointment.appointmentDateTime | date:'shortTime' }}</div>
+            </div>
+          </td>
           <td>
             <p-tag [value]="appointment.status" [severity]="getStatusSeverity(appointment.status)"></p-tag>
           </td>
           <td>
             <div class="flex gap-2">
-              <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"></button>
+              <button pButton pRipple type="button" icon="pi pi-pencil"
+                class="p-button-text p-button-sm p-button-rounded" pTooltip="Edit Appointment"
+                tooltipPosition="top"></button>
               <button pButton pRipple type="button" icon="pi pi-trash"
-                class="p-button-text p-button-sm p-button-danger"></button>
+                class="p-button-text p-button-sm p-button-rounded p-button-danger" pTooltip="Delete Appointment"
+                tooltipPosition="top"></button>
             </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center py-8">
+            <i class="pi pi-calendar-times text-4xl text-gray-400 mb-3"></i>
+            <p class="text-gray-600 font-medium">No appointments found</p>
+            <p class="text-gray-500 text-sm mt-1">Try adjusting your search or schedule a new appointment</p>
           </td>
         </tr>
       </ng-template>

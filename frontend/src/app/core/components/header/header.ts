@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 
@@ -10,6 +10,8 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './header.css'
 })
 export class HeaderComponent {
+  private readonly authService = inject(AuthService);
+
   showUserMenu = signal(false);
   showNotifications = signal(false);
 
@@ -19,13 +21,16 @@ export class HeaderComponent {
     { id: 3, message: 'Inventory low alert', time: '1 hour ago', read: true }
   ];
 
-  user = {
-    name: 'Dr. John Doe',
-    role: 'Admin',
-    avatar: 'https://ui-avatars.com/api/?name=John+Doe&background=0ea5e9&color=fff'
-  };
+  // Computed properties for user data from Keycloak
+  readonly currentUser = computed(() => this.authService.currentUser());
+  readonly isAuthenticated = computed(() => this.authService.isAuthenticated());
 
-  constructor(private authService: AuthService) { }
+  readonly userAvatar = computed(() => {
+    const user = this.currentUser();
+    if (!user) return '';
+    const name = user.name || 'User';
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0ea5e9&color=fff&size=128`;
+  });
 
   toggleUserMenu() {
     this.showUserMenu.set(!this.showUserMenu());

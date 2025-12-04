@@ -12,30 +12,37 @@
 
   <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
     <div class="mb-4">
-      <span class="p-input-icon-left w-full">
+      <span class="p-input-icon-left w-full md:w-96">
         <i class="pi pi-search"></i>
-        <input type="text" pInputText placeholder="Search patients..." [(ngModel)]="searchTerm" class="w-full" />
+        <input type="text" pInputText placeholder="Search by name or contact number..." [(ngModel)]="searchTerm"
+          class="w-full" />
       </span>
     </div>
 
     <p-table [value]="filteredPatients()" [paginator]="true" [rows]="10" [loading]="loading()"
-      [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-      [rowsPerPageOptions]="[10, 25, 50]">
+      [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} patients"
+      [rowsPerPageOptions]="[10, 25, 50]" styleClass="p-datatable-striped">
       <ng-template pTemplate="header">
         <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Date of Birth</th>
+          <th pSortableColumn="patientID">
+            ID <p-sortIcon field="patientID"></p-sortIcon>
+          </th>
+          <th pSortableColumn="firstName">
+            Name <p-sortIcon field="firstName"></p-sortIcon>
+          </th>
+          <th pSortableColumn="dateOfBirth">Date of Birth</th>
           <th>Gender</th>
           <th>Blood Type</th>
-          <th>Contact</th>
-          <th>Actions</th>
+          <th pSortableColumn="contactNumber">Contact</th>
+          <th style="width: 120px">Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-patient>
         <tr>
-          <td>{{ patient.patientID }}</td>
-          <td>{{ patient.firstName }} {{ patient.lastName }}</td>
+          <td><span class="font-mono text-sm">{{ patient.patientID }}</span></td>
+          <td>
+            <div class="font-medium text-gray-900">{{ patient.firstName }} {{ patient.lastName }}</div>
+          </td>
           <td>{{ patient.dateOfBirth | date:'mediumDate' }}</td>
           <td>
             <p-tag [value]="patient.genderName" [severity]="patient.genderName === 'Male' ? 'info' : 'success'"></p-tag>
@@ -43,16 +50,30 @@
           <td>
             <p-tag [value]="patient.bloodTypeName" severity="danger"></p-tag>
           </td>
-          <td>{{ patient.contactNumber }}</td>
+          <td><span class="font-mono text-sm">{{ patient.contactNumber }}</span></td>
           <td>
             <div class="flex gap-2">
-              <a [routerLink]="['/patients', patient.patientID]" class="p-button p-button-text p-button-sm">
+              <a [routerLink]="['/patients', patient.patientID]"
+                class="p-button p-button-text p-button-sm p-button-rounded" pTooltip="View Details"
+                tooltipPosition="top">
                 <i class="pi pi-eye"></i>
               </a>
-              <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"></button>
+              <button pButton pRipple type="button" icon="pi pi-pencil"
+                class="p-button-text p-button-sm p-button-rounded" pTooltip="Edit Patient"
+                tooltipPosition="top"></button>
               <button pButton pRipple type="button" icon="pi pi-trash"
-                class="p-button-text p-button-sm p-button-danger"></button>
+                class="p-button-text p-button-sm p-button-rounded p-button-danger" pTooltip="Delete Patient"
+                tooltipPosition="top"></button>
             </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center py-8">
+            <i class="pi pi-inbox text-4xl text-gray-400 mb-3"></i>
+            <p class="text-gray-600 font-medium">No patients found</p>
+            <p class="text-gray-500 text-sm mt-1">Try adjusting your search or add a new patient</p>
           </td>
         </tr>
       </ng-template>
