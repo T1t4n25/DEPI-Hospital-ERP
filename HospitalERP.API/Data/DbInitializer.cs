@@ -19,8 +19,7 @@ public static class DbInitializer
         var genders = new[]
         {
             new Gender { GenderName = "Male" },
-            new Gender { GenderName = "Female" },
-            new Gender { GenderName = "Other" }
+            new Gender { GenderName = "Female" }
         };
         context.Genders.AddRange(genders);
         await context.SaveChangesAsync();
