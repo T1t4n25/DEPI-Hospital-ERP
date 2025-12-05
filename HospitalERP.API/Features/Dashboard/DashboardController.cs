@@ -41,5 +41,13 @@ public class DashboardController : ControllerBase
         var result = await _mediator.Send(new GetAccountantDashboardQuery());
         return Ok(result);
     }
+
+    [HttpGet("pharmacy")]
+    [Authorize(Roles = "Admin,Pharmacist")]
+    public async Task<ActionResult<PharmacyDashboardDto>> GetPharmacyDashboard()
+    {
+        var result = await _mediator.Send(new GetPharmacyDashboardQuery());
+        return Ok(result);
+    }
 }
 

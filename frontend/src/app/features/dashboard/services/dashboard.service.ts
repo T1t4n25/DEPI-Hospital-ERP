@@ -6,7 +6,8 @@ import { environment } from '../../../../environments/environment';
 import {
   AdminDashboardDto,
   HrDashboardDto,
-  AccountantDashboardDto
+  AccountantDashboardDto,
+  PharmacyDashboardDto
 } from '../models/dashboard.models';
 
 @Injectable({ providedIn: 'root' })
@@ -32,6 +33,14 @@ export class DashboardService {
 
   getAccountantDashboard(): Observable<AccountantDashboardDto> {
     return this.http.get<AccountantDashboardDto>(`${this.apiUrl}/accountant`)
+      .pipe(
+        retry(2),
+        catchError(this.handleError.bind(this))
+      );
+  }
+
+  getPharmacyDashboard(): Observable<PharmacyDashboardDto> {
+    return this.http.get<PharmacyDashboardDto>(`${this.apiUrl}/pharmacy`)
       .pipe(
         retry(2),
         catchError(this.handleError.bind(this))

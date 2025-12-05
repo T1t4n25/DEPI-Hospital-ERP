@@ -90,3 +90,28 @@ export interface RecentInvoiceDto {
   invoiceDate: string;
 }
 
+// Pharmacy Dashboard Models
+export interface PharmacyDashboardDto {
+  totalMedications: number;
+  lowStockItems: number;
+  expiredItems: number;
+  expiringSoonItems: number;
+  totalValue: number;
+  lowStockItemsList: LowStockItemDto[];
+  expiringItemsList: ExpiringItemDto[];
+}
+
+export interface LowStockItemDto {
+  medicationID: number;
+  medicationName: string;
+  quantity: number;
+}
+
+export interface ExpiringItemDto {
+  medicationID: number;
+  medicationName: string;
+  expiryDate: string;
+  daysUntilExpiry: number;
+  quantity: number;
+}
+

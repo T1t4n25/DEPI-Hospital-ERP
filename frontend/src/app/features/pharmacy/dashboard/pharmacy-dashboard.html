@@ -1,24 +1,33 @@
 <div class="pharmacy-dashboard-container">
   <h1 class="text-3xl font-bold text-gray-800 mb-6">Pharmacy Dashboard</h1>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-    @for (stat of stats; track stat.label) {
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-600 mb-1">{{ stat.label }}</p>
-            <p class="text-2xl font-bold text-gray-800">{{ stat.value }}</p>
-          </div>
-          <div [class]="stat.color + ' p-3 rounded-lg'">
-            <i [class]="stat.icon" class="text-white text-2xl"></i>
+  @if (loading()) {
+    <div class="flex items-center justify-center py-12">
+      <div class="text-center">
+        <i class="pi pi-spin pi-spinner text-4xl text-blue-500"></i>
+        <p class="mt-4 text-gray-600">Loading pharmacy dashboard data...</p>
+      </div>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
+      @for (stat of stats(); track stat.label) {
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600 mb-1">{{ stat.label }}</p>
+              <p class="text-2xl font-bold text-gray-800">{{ stat.value }}</p>
+            </div>
+            <div [class]="stat.color + ' p-3 rounded-lg'">
+              <i [class]="stat.icon" class="text-white text-2xl"></i>
+            </div>
           </div>
         </div>
-      </div>
-    }
-  </div>
+      }
+    </div>
 
-  <p-card header="Medication Categories" class="shadow-sm">
-    <p-chart type="pie" [data]="medicationChartData" [options]="chartOptions" [style]="{'height': '300px'}"></p-chart>
-  </p-card>
+    <p-card header="Medication Categories" class="shadow-sm">
+      <p-chart type="pie" [data]="medicationChartData" [options]="chartOptions" [style]="{'height': '300px'}"></p-chart>
+    </p-card>
+  }
 </div>
 

@@ -1,10 +1,8 @@
-import { Component, DestroyRef } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChartModule } from 'primeng/chart';
 import { CardModule } from 'primeng/card';
-import { MedicationsService } from '../../medications/services/medications.service';
-import { InventoryService } from '../../inventory/services/inventory.service';
-import { forkJoin } from 'rxjs';
+import { DashboardService } from '../../dashboard/services/dashboard.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -15,21 +13,24 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   styleUrl: './pharmacy-dashboard.css'
 })
 export class PharmacyDashboardComponent {
-  stats = [
+  private dashboardService = inject(DashboardService);
+  private destroyRef = inject(DestroyRef);
+
+  loading = signal(true);
+  dashboardData = signal<any>(null);
+
+  stats = signal([
     { label: 'Total Medications', value: '...', icon: 'pi pi-box', color: 'bg-blue-500' },
     { label: 'Low Stock Items', value: '...', icon: 'pi pi-exclamation-triangle', color: 'bg-yellow-500' },
-    { label: 'Expiring Soon', value: '...', icon: 'pi pi-calendar-times', color: 'bg-red-500' },
+    { label: 'Expired Items', value: '...', icon: 'pi pi-times-circle', color: 'bg-red-500' },
+    { label: 'Expiring Soon', value: '...', icon: 'pi pi-calendar-times', color: 'bg-orange-500' },
     { label: 'Total Value', value: '...', icon: 'pi pi-dollar', color: 'bg-green-500' }
-  ];
+  ]);
 
   medicationChartData: any;
   chartOptions: any;
 
-  constructor(
-    private medicationsService: MedicationsService,
-    private inventoryService: InventoryService,
-    private destroyRef: DestroyRef
-  ) {
+  constructor() {
     this.initChart();
     this.loadDashboardData();
   }
@@ -50,53 +51,38 @@ export class PharmacyDashboardComponent {
   }
 
   private loadDashboardData() {
-    // ForkJoin to get both datasets
-    forkJoin({
-      medications: this.medicationsService.getAll({ pageSize: 10000 }),
-      inventory: this.inventoryService.getAll({ pageSize: 10000 })
-    }).pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
-      next: ({ medications, inventory }) => {
-        this.calculateStats(medications.data, inventory.data);
-      },
-      error: (err) => console.error('Failed to load dashboard data', err)
-    });
+    this.dashboardService.getPharmacyDashboard()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.dashboardData.set(data);
+          this.updateStats(data);
+          this.loading.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load pharmacy dashboard data', err);
+          this.loading.set(false);
+        }
+      });
   }
 
-  private calculateStats(medications: any[], inventory: any[]) {
-    // 1. Total Medications
-    const totalMedications = medications.length;
+  private updateStats(data: any) {
+    const formatCurrency = (value: number): string => {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(value);
+    };
 
-    // 2. Low Stock Items (Quantity < 10)
-    const lowStockCount = inventory.filter(item => item.quantity < 10).length;
-
-    // 3. Expiring Soon (Within 30 days)
-    const today = new Date();
-    const thirtyDaysFromNow = new Date();
-    thirtyDaysFromNow.setDate(today.getDate() + 30);
-
-    const expiringSoonCount = inventory.filter(item => {
-      const expiryDate = new Date(item.expiryDate);
-      return expiryDate >= today && expiryDate <= thirtyDaysFromNow;
-    }).length;
-
-    // 4. Total Value (Quantity * Cost)
-    let totalValue = 0;
-    inventory.forEach(item => {
-      const med = medications.find(m => m.medicationID === item.medicationID);
-      if (med) {
-        totalValue += item.quantity * med.cost;
-      }
-    });
-
-    // Update stats array
-    this.stats = [
-      { label: 'Total Medications', value: totalMedications.toString(), icon: 'pi pi-box', color: 'bg-blue-500' },
-      { label: 'Low Stock Items', value: lowStockCount.toString(), icon: 'pi pi-exclamation-triangle', color: 'bg-yellow-500' },
-      { label: 'Expiring Soon', value: expiringSoonCount.toString(), icon: 'pi pi-calendar-times', color: 'bg-red-500' },
-      { label: 'Total Value', value: `$${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, icon: 'pi pi-dollar', color: 'bg-green-500' }
-    ];
+    this.stats.set([
+      { label: 'Total Medications', value: data.totalMedications.toString(), icon: 'pi pi-box', color: 'bg-blue-500' },
+      { label: 'Low Stock Items', value: data.lowStockItems.toString(), icon: 'pi pi-exclamation-triangle', color: 'bg-yellow-500' },
+      { label: 'Expired Items', value: data.expiredItems.toString(), icon: 'pi pi-times-circle', color: 'bg-red-500' },
+      { label: 'Expiring Soon', value: data.expiringSoonItems.toString(), icon: 'pi pi-calendar-times', color: 'bg-orange-500' },
+      { label: 'Total Value', value: formatCurrency(data.totalValue), icon: 'pi pi-dollar', color: 'bg-green-500' }
+    ]);
   }
 }
 
