@@ -1,11 +1,10 @@
-import { Component, DestroyRef } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChartModule } from 'primeng/chart';
 import { CardModule } from 'primeng/card';
-import { EmployeesService } from '../../employees/services/employees.service';
-import { DepartmentsService } from '../../departments/services/departments.service';
-import { forkJoin } from 'rxjs';
+import { DashboardService } from '../../dashboard/services/dashboard.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HrDashboardDto } from '../../dashboard/models/dashboard.models';
 
 @Component({
   selector: 'app-hr-dashboard',
@@ -15,97 +14,121 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   styleUrl: './hr-dashboard.css'
 })
 export class HrDashboardComponent {
-  stats = [
+  private dashboardService = inject(DashboardService);
+  private destroyRef = inject(DestroyRef);
+
+  loading = signal(true);
+  dashboardData = signal<HrDashboardDto | null>(null);
+
+  stats = signal([
     { label: 'Total Employees', value: '...', icon: 'pi pi-users', color: 'bg-blue-500' },
     { label: 'Present Today', value: '...', icon: 'pi pi-check-circle', color: 'bg-green-500' },
     { label: 'On Leave', value: '...', icon: 'pi pi-calendar-times', color: 'bg-yellow-500' },
     { label: 'Departments', value: '...', icon: 'pi pi-building', color: 'bg-purple-500' }
-  ];
+  ]);
 
   attendanceChartData: any;
   departmentChartData: any;
+  roleChartData: any;
   chartOptions: any;
 
-  constructor(
-    private employeesService: EmployeesService,
-    private departmentsService: DepartmentsService,
-    private destroyRef: DestroyRef
-  ) {
+  recentHires = signal<any[]>([]);
+
+  constructor() {
     this.initCharts();
     this.loadDashboardData();
   }
 
   initCharts() {
-    this.attendanceChartData = {
-      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-      datasets: [{
-        label: 'Attendance',
-        data: [75, 78, 80, 72, 76, 45, 30], // Placeholder data
-        backgroundColor: '#0ea5e9'
-      }]
-    };
-
-    // Initial placeholder for department chart
-    this.departmentChartData = {
-      labels: [],
-      datasets: [{
-        data: [],
-        backgroundColor: ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#6366f1', '#ec4899']
-      }]
-    };
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--text-color');
+    const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
+    const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
 
     this.chartOptions = {
       maintainAspectRatio: false,
-      aspectRatio: 0.6
+      aspectRatio: 0.6,
+      plugins: {
+        legend: {
+          labels: {
+            color: textColor
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: textColorSecondary
+          },
+          grid: {
+            color: surfaceBorder
+          }
+        },
+        y: {
+          ticks: {
+            color: textColorSecondary
+          },
+          grid: {
+            color: surfaceBorder
+          }
+        }
+      }
     };
   }
 
   private loadDashboardData() {
-    forkJoin({
-      employees: this.employeesService.getAll({ pageSize: 10000 }),
-      departments: this.departmentsService.getAll({ pageSize: 10000 })
-    }).pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
-      next: ({ employees, departments }) => {
-        this.calculateStats(employees.data, departments.data);
-      },
-      error: (err) => console.error('Failed to load dashboard data', err)
-    });
+    this.dashboardService.getHrDashboard()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.dashboardData.set(data);
+          this.updateStats(data);
+          this.updateCharts(data);
+          this.updateRecentHires(data);
+          this.loading.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load HR dashboard data', err);
+          this.loading.set(false);
+        }
+      });
   }
 
-  private calculateStats(employees: any[], departments: any[]) {
-    // 1. Total Employees
-    const totalEmployees = employees.length;
+  private updateStats(data: HrDashboardDto) {
+    this.stats.set([
+      { label: 'Total Employees', value: data.totalEmployees.toString(), icon: 'pi pi-users', color: 'bg-blue-500' },
+      { label: 'Present Today', value: data.presentToday.toString(), icon: 'pi pi-check-circle', color: 'bg-green-500' },
+      { label: 'On Leave', value: data.onLeave.toString(), icon: 'pi pi-calendar-times', color: 'bg-yellow-500' },
+      { label: 'Departments', value: data.totalDepartments.toString(), icon: 'pi pi-building', color: 'bg-purple-500' }
+    ]);
+  }
 
-    // 2. Departments Count
-    const totalDepartments = departments.length;
-
-    // 3. Placeholders for attendance (since we don't have real attendance data yet)
-    const presentToday = Math.floor(totalEmployees * 0.9); // Assume 90% present
-    const onLeave = totalEmployees - presentToday;
-
-    this.stats = [
-      { label: 'Total Employees', value: totalEmployees.toString(), icon: 'pi pi-users', color: 'bg-blue-500' },
-      { label: 'Present Today', value: presentToday.toString(), icon: 'pi pi-check-circle', color: 'bg-green-500' },
-      { label: 'On Leave', value: onLeave.toString(), icon: 'pi pi-calendar-times', color: 'bg-yellow-500' },
-      { label: 'Departments', value: totalDepartments.toString(), icon: 'pi pi-building', color: 'bg-purple-500' }
-    ];
-
-    // 4. Department Distribution Chart
-    const deptCounts: { [key: string]: number } = {};
-    employees.forEach(emp => {
-      const deptName = emp.departmentName || 'Unknown';
-      deptCounts[deptName] = (deptCounts[deptName] || 0) + 1;
-    });
-
+  private updateCharts(data: HrDashboardDto) {
+    // Department Distribution Chart
     this.departmentChartData = {
-      labels: Object.keys(deptCounts),
+      labels: data.departmentEmployeeCounts.map(d => d.departmentName),
       datasets: [{
-        data: Object.values(deptCounts),
+        data: data.departmentEmployeeCounts.map(d => d.employeeCount),
         backgroundColor: ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#6366f1', '#ec4899']
       }]
     };
+
+    // Role Distribution Chart
+    this.roleChartData = {
+      labels: data.roleCounts.map(r => r.roleName),
+      datasets: [{
+        data: data.roleCounts.map(r => r.count),
+        backgroundColor: ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#6366f1', '#ec4899']
+      }]
+    };
+  }
+
+  private updateRecentHires(data: HrDashboardDto) {
+    const hires = data.recentHires.map(hire => ({
+      ...hire,
+      hireDateFormatted: new Date(hire.hireDate).toLocaleDateString()
+    }));
+    this.recentHires.set(hires);
   }
 }
 

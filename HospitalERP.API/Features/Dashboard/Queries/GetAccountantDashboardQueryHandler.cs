@@ -57,17 +57,26 @@ public class GetAccountantDashboardQueryHandler : IRequestHandler<GetAccountantD
 
         // Monthly Revenue (last 6 months from paid invoices)
         var sixMonthsAgo = new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(-6);
-        var monthlyRevenue = await _context.Invoices
+        var monthlyRevenueData = await _context.Invoices
             .AsNoTracking()
             .Where(i => i.InvoiceDate >= sixMonthsAgo && i.PaymentStatusID == paidStatusId)
             .GroupBy(i => new { i.InvoiceDate.Year, i.InvoiceDate.Month })
+            .Select(g => new 
+            { 
+                Year = g.Key.Year, 
+                Month = g.Key.Month, 
+                Amount = g.Sum(i => i.TotalAmount) 
+            })
+            .ToListAsync(cancellationToken);
+
+        var monthlyRevenue = monthlyRevenueData
             .Select(g => new MonthlyRevenueDto
             {
-                Month = new DateOnly(g.Key.Year, g.Key.Month, 1).ToString("MMM yyyy"),
-                Amount = g.Sum(i => i.TotalAmount)
+                Month = new DateOnly(g.Year, g.Month, 1).ToString("MMM yyyy"),
+                Amount = g.Amount
             })
             .OrderBy(r => r.Month)
-            .ToListAsync(cancellationToken);
+            .ToList();
 
         // Invoice Status Breakdown
         var invoiceStatusBreakdown = await _context.Invoices
@@ -83,21 +92,33 @@ public class GetAccountantDashboardQueryHandler : IRequestHandler<GetAccountantD
             .ToListAsync(cancellationToken);
 
         // Recent Invoices (last 10)
-        var recentInvoices = await _context.Invoices
+        var recentInvoicesData = await _context.Invoices
             .AsNoTracking()
             .Include(i => i.Patient)
             .Include(i => i.PaymentStatus)
             .OrderByDescending(i => i.InvoiceDate)
             .Take(10)
-            .Select(i => new RecentInvoiceDto
+            .Select(i => new 
             {
                 InvoiceID = i.InvoiceID,
-                PatientName = $"{i.Patient.FirstName} {i.Patient.LastName}",
+                PatientFirstName = i.Patient.FirstName,
+                PatientLastName = i.Patient.LastName,
                 TotalAmount = i.TotalAmount,
                 PaymentStatusName = i.PaymentStatus.StatusName,
                 InvoiceDate = i.InvoiceDate
             })
             .ToListAsync(cancellationToken);
+
+        var recentInvoices = recentInvoicesData
+            .Select(i => new RecentInvoiceDto
+            {
+                InvoiceID = i.InvoiceID,
+                PatientName = $"{i.PatientFirstName} {i.PatientLastName}",
+                TotalAmount = i.TotalAmount,
+                PaymentStatusName = i.PaymentStatusName,
+                InvoiceDate = i.InvoiceDate
+            })
+            .ToList();
 
         return new AccountantDashboardDto
         {

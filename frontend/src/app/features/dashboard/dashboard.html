@@ -4,59 +4,103 @@
     <p class="text-gray-600 mt-1">Welcome back! Here's what's happening today.</p>
   </div>
 
-  <!-- Statistics Cards -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-    @for (stat of stats; track stat.label) {
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-600 mb-1">{{ stat.label }}</p>
-            <p class="text-2xl font-bold text-gray-800">{{ stat.value }}</p>
-            <p class="text-xs text-green-600 mt-1">{{ stat.change }} from last month</p>
-          </div>
-          <div [class]="stat.color + ' p-3 rounded-lg'">
-            <i [class]="stat.icon" class="text-white text-2xl"></i>
+  @if (loading()) {
+    <div class="flex items-center justify-center py-12">
+      <div class="text-center">
+        <i class="pi pi-spin pi-spinner text-4xl text-blue-500"></i>
+        <p class="mt-4 text-gray-600">Loading dashboard data...</p>
+      </div>
+    </div>
+  } @else {
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      @for (stat of stats(); track stat.label) {
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600 mb-1">{{ stat.label }}</p>
+              <p class="text-2xl font-bold text-gray-800">{{ stat.value }}</p>
+            </div>
+            <div [class]="stat.color + ' p-3 rounded-lg'">
+              <i [class]="stat.icon" class="text-white text-2xl"></i>
+            </div>
           </div>
         </div>
-      </div>
-    }
-  </div>
+      }
+    </div>
 
-  <!-- Charts Section -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-    <!-- Appointments Chart -->
-    <p-card header="Weekly Appointments" class="shadow-sm">
-      <p-chart type="line" [data]="appointmentsChartData" [options]="chartOptions" [style]="{'height': '300px'}"></p-chart>
-    </p-card>
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <!-- Appointments Chart (Admin only) -->
+      @if (appointmentsChartData && !accountantData()) {
+        <p-card header="Weekly Appointments" class="shadow-sm">
+          <p-chart type="line" [data]="appointmentsChartData" [options]="chartOptions" [style]="{'height': '300px'}"></p-chart>
+        </p-card>
+      }
 
-    <!-- Revenue Chart -->
-    <p-card header="Monthly Revenue" class="shadow-sm">
-      <p-chart type="bar" [data]="revenueChartData" [options]="chartOptions" [style]="{'height': '300px'}"></p-chart>
-    </p-card>
-  </div>
+      <!-- Revenue Chart -->
+      @if (revenueChartData) {
+        <p-card header="Monthly Revenue" class="shadow-sm">
+          <p-chart type="bar" [data]="revenueChartData" [options]="chartOptions" [style]="{'height': '300px'}"></p-chart>
+        </p-card>
+      }
+    </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Department Distribution -->
-    <p-card header="Department Distribution" class="shadow-sm lg:col-span-1">
-      <p-chart type="pie" [data]="departmentChartData" [options]="chartOptions" [style]="{'height': '300px'}"></p-chart>
-    </p-card>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Department Distribution / Invoice Status Breakdown -->
+      @if (departmentChartData) {
+        <p-card [header]="accountantData() ? 'Invoice Status Breakdown' : 'Department Distribution'" class="shadow-sm lg:col-span-1">
+          <p-chart type="pie" [data]="departmentChartData" [options]="chartOptions" [style]="{'height': '300px'}"></p-chart>
+        </p-card>
+      }
 
-    <!-- Recent Activities -->
-    <p-card header="Recent Activities" class="shadow-sm lg:col-span-2">
-      <div class="space-y-4">
-        @for (activity of recentActivities; track activity.id) {
-          <div class="flex items-start gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors">
-            <div [class]="activity.color + ' p-2 rounded-lg bg-gray-100'">
-              <i [class]="activity.icon" class="text-lg"></i>
-            </div>
-            <div class="flex-1">
-              <p class="font-medium text-gray-800">{{ activity.description }}</p>
-              <p class="text-sm text-gray-500 mt-1">{{ activity.time }}</p>
-            </div>
-          </div>
-        }
-      </div>
-    </p-card>
-  </div>
+      <!-- Recent Activities / Recent Invoices -->
+      <p-card [header]="accountantData() ? 'Recent Invoices' : 'Recent Activities'" class="shadow-sm lg:col-span-2">
+        <div class="space-y-4">
+          @if (recentActivities().length > 0) {
+            @if (accountantData()) {
+              <!-- Accountant: Show invoices -->
+              @for (invoice of recentActivities(); track invoice.id) {
+                <div class="flex items-start gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                  <div [class]="invoice.color + ' p-2 rounded-lg bg-gray-100'">
+                    <i [class]="invoice.icon" class="text-lg"></i>
+                  </div>
+                  <div class="flex-1">
+                    <p class="font-medium text-gray-800">
+                      Invoice #{{ invoice.invoiceID }} - {{ invoice.patientName }}
+                    </p>
+                    <div class="flex items-center gap-4 mt-1">
+                      <p class="text-sm text-gray-600">{{ invoice.totalAmount }}</p>
+                      <span [class]="invoice.color + ' text-xs font-semibold'">
+                        {{ invoice.paymentStatus }}
+                      </span>
+                      <p class="text-sm text-gray-500">{{ invoice.time }}</p>
+                    </div>
+                  </div>
+                </div>
+              }
+            } @else {
+              <!-- Admin: Show activities -->
+              @for (activity of recentActivities(); track activity.id) {
+                <div class="flex items-start gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                  <div [class]="activity.color + ' p-2 rounded-lg bg-gray-100'">
+                    <i [class]="activity.icon" class="text-lg"></i>
+                  </div>
+                  <div class="flex-1">
+                    <p class="font-medium text-gray-800">{{ activity.description }}</p>
+                    <p class="text-sm text-gray-500 mt-1">{{ activity.time }}</p>
+                  </div>
+                </div>
+              }
+            }
+          } @else {
+            <p class="text-gray-500 text-center py-4">
+              {{ accountantData() ? 'No recent invoices' : 'No recent activities' }}
+            </p>
+          }
+        </div>
+      </p-card>
+    </div>
+  }
 </div>
 

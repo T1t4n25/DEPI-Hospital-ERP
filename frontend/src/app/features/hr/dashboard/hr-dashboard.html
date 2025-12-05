@@ -1,30 +1,70 @@
 <div class="hr-dashboard-container">
   <h1 class="text-3xl font-bold text-gray-800 mb-6">HR Dashboard</h1>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-    @for (stat of stats; track stat.label) {
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-600 mb-1">{{ stat.label }}</p>
-            <p class="text-2xl font-bold text-gray-800">{{ stat.value }}</p>
-          </div>
-          <div [class]="stat.color + ' p-3 rounded-lg'">
-            <i [class]="stat.icon" class="text-white text-2xl"></i>
+  @if (loading()) {
+    <div class="flex items-center justify-center py-12">
+      <div class="text-center">
+        <i class="pi pi-spin pi-spinner text-4xl text-blue-500"></i>
+        <p class="mt-4 text-gray-600">Loading HR dashboard data...</p>
+      </div>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      @for (stat of stats(); track stat.label) {
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600 mb-1">{{ stat.label }}</p>
+              <p class="text-2xl font-bold text-gray-800">{{ stat.value }}</p>
+            </div>
+            <div [class]="stat.color + ' p-3 rounded-lg'">
+              <i [class]="stat.icon" class="text-white text-2xl"></i>
+            </div>
           </div>
         </div>
-      </div>
+      }
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      @if (departmentChartData) {
+        <p-card header="Department Distribution" class="shadow-sm">
+          <p-chart type="pie" [data]="departmentChartData" [options]="chartOptions" [style]="{'height': '300px'}"></p-chart>
+        </p-card>
+      }
+
+      @if (roleChartData) {
+        <p-card header="Role Distribution" class="shadow-sm">
+          <p-chart type="doughnut" [data]="roleChartData" [options]="chartOptions" [style]="{'height': '300px'}"></p-chart>
+        </p-card>
+      }
+    </div>
+
+    @if (recentHires().length > 0) {
+      <p-card header="Recent Hires (Last 30 Days)" class="shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-200">
+                <th class="text-left py-3 px-4 font-semibold text-gray-700">Employee</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-700">Role</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-700">Department</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-700">Hire Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (hire of recentHires(); track hire.employeeID) {
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                  <td class="py-3 px-4">{{ hire.fullName }}</td>
+                  <td class="py-3 px-4">{{ hire.roleName }}</td>
+                  <td class="py-3 px-4">{{ hire.departmentName }}</td>
+                  <td class="py-3 px-4">{{ hire.hireDateFormatted }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </p-card>
     }
-  </div>
-
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <p-card header="Weekly Attendance" class="shadow-sm">
-      <p-chart type="bar" [data]="attendanceChartData" [options]="chartOptions" [style]="{'height': '300px'}"></p-chart>
-    </p-card>
-
-    <p-card header="Department Distribution" class="shadow-sm">
-      <p-chart type="pie" [data]="departmentChartData" [options]="chartOptions" [style]="{'height': '300px'}"></p-chart>
-    </p-card>
-  </div>
+  }
 </div>
 

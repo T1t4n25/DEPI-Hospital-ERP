@@ -67,29 +67,42 @@ public class GetAdminDashboardQueryHandler : IRequestHandler<GetAdminDashboardQu
             .CountAsync(i => i.PaymentStatusID != paidStatusId, cancellationToken); // Not paid
 
         // Weekly Appointments (last 7 days)
-        var weeklyAppointments = await _context.Appointments
+        var weeklyAppointmentsData = await _context.Appointments
             .AsNoTracking()
             .Where(a => a.AppointmentDateTime.Date >= DateTime.Today.AddDays(-7))
             .GroupBy(a => a.AppointmentDateTime.Date)
-            .Select(g => new WeeklyAppointmentStatDto
-            {
-                Day = g.Key.ToString("ddd"),
-                Count = g.Count()
-            })
+            .Select(g => new { Date = g.Key, Count = g.Count() })
             .ToListAsync(cancellationToken);
 
+        var weeklyAppointments = weeklyAppointmentsData
+            .Select(g => new WeeklyAppointmentStatDto
+            {
+                Day = g.Date.ToString("ddd"),
+                Count = g.Count
+            })
+            .ToList();
+
         // Monthly Revenue (last 6 months)
-        var monthlyRevenue = await _context.Invoices
+        var monthlyRevenueData = await _context.Invoices
             .AsNoTracking()
             .Where(i => i.InvoiceDate >= sixMonthsAgo && i.PaymentStatusID == paidStatusId)
             .GroupBy(i => new { i.InvoiceDate.Year, i.InvoiceDate.Month })
+            .Select(g => new 
+            { 
+                Year = g.Key.Year, 
+                Month = g.Key.Month, 
+                Amount = g.Sum(i => i.TotalAmount) 
+            })
+            .ToListAsync(cancellationToken);
+
+        var monthlyRevenue = monthlyRevenueData
             .Select(g => new MonthlyRevenueDto
             {
-                Month = new DateOnly(g.Key.Year, g.Key.Month, 1).ToString("MMM yyyy"),
-                Amount = g.Sum(i => i.TotalAmount)
+                Month = new DateOnly(g.Year, g.Month, 1).ToString("MMM yyyy"),
+                Amount = g.Amount
             })
             .OrderBy(r => r.Month)
-            .ToListAsync(cancellationToken);
+            .ToList();
 
         // Department Stats
         var departmentStats = await _context.Employees
@@ -107,34 +120,53 @@ public class GetAdminDashboardQueryHandler : IRequestHandler<GetAdminDashboardQu
         var recentActivities = new List<RecentActivityDto>();
 
         // Recent appointments
-        var recentAppointments = await _context.Appointments
+        var recentAppointmentsData = await _context.Appointments
             .AsNoTracking()
             .Include(a => a.Patient)
             .OrderByDescending(a => a.AppointmentDateTime)
             .Take(5)
-            .Select(a => new RecentActivityDto
-            {
-                Type = "Appointment",
-                Description = $"Appointment scheduled for {a.Patient.FirstName} {a.Patient.LastName}",
+            .Select(a => new 
+            { 
+                PatientFirstName = a.Patient.FirstName, 
+                PatientLastName = a.Patient.LastName,
                 Timestamp = a.AppointmentDateTime
             })
             .ToListAsync(cancellationToken);
 
+        var recentAppointments = recentAppointmentsData
+            .Select(a => new RecentActivityDto
+            {
+                Type = "Appointment",
+                Description = $"Appointment scheduled for {a.PatientFirstName} {a.PatientLastName}",
+                Timestamp = a.Timestamp
+            })
+            .ToList();
+
         recentActivities.AddRange(recentAppointments);
 
         // Recent invoices
-        var recentInvoices = await _context.Invoices
+        var recentInvoicesData = await _context.Invoices
             .AsNoTracking()
             .Include(i => i.Patient)
             .OrderByDescending(i => i.InvoiceDate)
             .Take(3)
+            .Select(i => new 
+            { 
+                InvoiceID = i.InvoiceID,
+                PatientFirstName = i.Patient.FirstName, 
+                PatientLastName = i.Patient.LastName,
+                InvoiceDate = i.InvoiceDate
+            })
+            .ToListAsync(cancellationToken);
+
+        var recentInvoices = recentInvoicesData
             .Select(i => new RecentActivityDto
             {
                 Type = "Invoice",
-                Description = $"Invoice #{i.InvoiceID} created for {i.Patient.FirstName} {i.Patient.LastName}",
+                Description = $"Invoice #{i.InvoiceID} created for {i.PatientFirstName} {i.PatientLastName}",
                 Timestamp = i.InvoiceDate.ToDateTime(TimeOnly.MinValue)
             })
-            .ToListAsync(cancellationToken);
+            .ToList();
 
         recentActivities.AddRange(recentInvoices);
 
