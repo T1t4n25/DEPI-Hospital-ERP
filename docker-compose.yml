@@ -67,13 +67,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
       - ASPNETCORE_URLS=${ASPNETCORE_URLS:-http://+:5037}
-      - DB_SERVER=${DB_SERVER:-sqlserver}
-      - DB_DATABASE=${DB_DATABASE:-HospitalERP}
-      - DB_USER=${DB_USER:-sa}
-      - DB_PASSWORD=${DB_PASSWORD:-YourStrongPassword123}
-      - DB_CONNECTION_STRING=${DB_CONNECTION_STRING:-Server=sqlserver;Database=HospitalERP;User Id=sa;Password=YourStrongPassword123;TrustServerCertificate=true;MultipleActiveResultSets=true;}
-      - KEYCLOAK_AUTHORITY=${KEYCLOAK_AUTHORITY:-http://localhost:8080/realms/hospital-erp}
-      - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE:-hospital-erp-api,account,hospital-erp}
+      - KEYCLOAK_AUTHORITY=${KEYCLOAK_AUTHORITY:-http://keycloak:8080/realms/hospital-erp}
+      - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE:-hospital-erp-api,account}
       - KEYCLOAK_REQUIRE_HTTPS=${KEYCLOAK_REQUIRE_HTTPS:-false}
     ports:
       - "${API_PORT:-5037}:5037"
