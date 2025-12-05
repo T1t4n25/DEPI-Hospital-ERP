@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -44,6 +44,7 @@ export class EmployeesListComponent {
   private readonly service = inject(EmployeesService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly loading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
@@ -80,7 +81,7 @@ export class EmployeesListComponent {
       searchTerm: this.searchTerm() || undefined
     })
       .pipe(
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
         catchError((err: Error) => {
           this.error.set(err.message);
           return of({ data: [], pageNumber: 1, pageSize: 10, totalCount: 0, totalPages: 0, hasPreviousPage: false, hasNextPage: false });
@@ -116,7 +117,7 @@ export class EmployeesListComponent {
         this.loading.set(true);
         this.service.delete(employee.employeeID)
           .pipe(
-            takeUntilDestroyed(),
+            takeUntilDestroyed(this.destroyRef),
             catchError((err: Error) => {
               this.messageService.add({
                 severity: 'error',

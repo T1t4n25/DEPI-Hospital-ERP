@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, retry, shareReplay } from 'rxjs/operators';
+import { catchError, retry, shareReplay, map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import { PaginatedResponse } from '../../../shared/interfaces/paginated-response.interface';
 import { QueryParams } from '../../../shared/interfaces/query-params.interface';
@@ -47,21 +47,36 @@ export class AppointmentsService {
   }
 
   create(data: CreateAppointmentModel): Observable<AppointmentDetailModel> {
-    this.clearCache();
     return this.http.post<AppointmentDetailModel>(this.apiUrl, data)
-      .pipe(catchError(this.handleError.bind(this)));
+      .pipe(
+        map(result => {
+          this.clearCache();
+          return result;
+        }),
+        catchError(this.handleError.bind(this))
+      );
   }
 
   update(id: number, data: UpdateAppointmentModel): Observable<AppointmentDetailModel> {
-    this.clearCache();
     return this.http.put<AppointmentDetailModel>(`${this.apiUrl}/${id}`, data)
-      .pipe(catchError(this.handleError.bind(this)));
+      .pipe(
+        map(result => {
+          this.clearCache();
+          return result;
+        }),
+        catchError(this.handleError.bind(this))
+      );
   }
 
   delete(id: number): Observable<void> {
-    this.clearCache();
     return this.http.delete<void>(`${this.apiUrl}/${id}`)
-      .pipe(catchError(this.handleError.bind(this)));
+      .pipe(
+        map(result => {
+          this.clearCache();
+          return result;
+        }),
+        catchError(this.handleError.bind(this))
+      );
   }
 
   clearCache(): void {

@@ -58,6 +58,12 @@ export class InventoryService {
       .pipe(catchError(this.handleError.bind(this)));
   }
 
+  delete(id: number): Observable<void> {
+    this.clearCache();
+    return this.http.delete<void>(`${this.apiUrl}/${id}`)
+      .pipe(catchError(this.handleError.bind(this)));
+  }
+
   clearCache(): void {
     this.cache$.clear();
   }

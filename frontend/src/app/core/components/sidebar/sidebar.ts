@@ -41,7 +41,7 @@ export class SidebarComponent {
       route: '/appointments',
       children: [
         { label: 'All Appointments', icon: 'pi pi-list', route: '/appointments' },
-        { label: 'Calendar View', icon: 'pi pi-calendar', route: '/appointments/calendar' },
+        // { label: 'Calendar View', icon: 'pi pi-calendar', route: '/appointments/calendar' },
         { label: 'New Appointment', icon: 'pi pi-plus', route: '/appointments/new' }
       ]
     },

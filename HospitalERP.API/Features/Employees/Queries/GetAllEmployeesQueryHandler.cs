@@ -24,6 +24,7 @@ public class GetAllEmployeesQueryHandler : IRequestHandler<GetAllEmployeesQuery,
     {
         var query = _context.Employees
             .AsNoTracking()
+            .Include(e => e.Gender)
             .Include(e => e.Role)
             .Include(e => e.Department)
             .AsQueryable();

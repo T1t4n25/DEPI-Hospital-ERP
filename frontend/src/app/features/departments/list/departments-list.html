@@ -1,4 +1,7 @@
 <div class="departments-list-container">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
   <div class="flex items-center justify-between mb-6">
     <div>
       <h1 class="text-3xl font-bold text-gray-800">Departments</h1>
@@ -10,37 +13,68 @@
     </a>
   </div>
 
+  @if (loading() && departments().length === 0) {
+  <app-loading-spinner />
+  } @else if (error()) {
+  <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+    <p class="text-sm font-medium text-red-800">{{ error() }}</p>
+  </div>
+  } @else {
   <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
     <div class="mb-4">
-      <span class="p-input-icon-left w-full">
+      <span class="p-input-icon-left w-full md:w-96">
         <i class="pi pi-search"></i>
-        <input type="text" pInputText placeholder="Search departments..." [(ngModel)]="searchTerm" class="w-full" />
+        <input type="text" pInputText placeholder="Search departments..." [ngModel]="searchTerm()"
+          (ngModelChange)="searchTerm.set($event)" class="w-full" />
       </span>
     </div>
 
-    <p-table [value]="filteredDepartments()" [paginator]="true" [rows]="10" [loading]="loading()">
+    <p-table [value]="filteredDepartments()" [paginator]="true" [rows]="10" [loading]="loading()"
+      [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} departments"
+      [rowsPerPageOptions]="[10, 25, 50]" styleClass="p-datatable-striped">
       <ng-template pTemplate="header">
         <tr>
-          <th>ID</th>
-          <th>Name</th>
+          <th pSortableColumn="departmentID">
+            ID <p-sortIcon field="departmentID"></p-sortIcon>
+          </th>
+          <th pSortableColumn="departmentName">
+            Name <p-sortIcon field="departmentName"></p-sortIcon>
+          </th>
           <th>Manager</th>
-          <th>Actions</th>
+          <th style="width: 120px">Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-department>
         <tr>
-          <td>{{ department.departmentID }}</td>
-          <td>{{ department.departmentName }}</td>
+          <td><span class="font-mono text-sm">{{ department.departmentID }}</span></td>
+          <td>
+            <div class="font-medium text-gray-900">{{ department.departmentName }}</div>
+          </td>
           <td>{{ department.managerName || 'N/A' }}</td>
           <td>
             <div class="flex gap-2">
-              <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"></button>
+              <a [routerLink]="['/departments', department.departmentID, 'edit']"
+                class="p-button p-button-text p-button-sm p-button-rounded" pTooltip="Edit Department"
+                tooltipPosition="top">
+                <i class="pi pi-pencil"></i>
+              </a>
               <button pButton pRipple type="button" icon="pi pi-trash"
-                class="p-button-text p-button-sm p-button-danger"></button>
+                class="p-button-text p-button-sm p-button-rounded p-button-danger" pTooltip="Delete Department"
+                tooltipPosition="top" (click)="deleteDepartment(department)"></button>
             </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="text-center py-8">
+            <i class="pi pi-building text-4xl text-gray-400 mb-3"></i>
+            <p class="text-gray-600 font-medium">No departments found</p>
+            <p class="text-gray-500 text-sm mt-1">Try adjusting your search or add a new department</p>
           </td>
         </tr>
       </ng-template>
     </p-table>
   </div>
+  }
 </div>

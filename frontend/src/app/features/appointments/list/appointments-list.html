@@ -1,4 +1,7 @@
 <div class="appointments-list-container">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
   <div class="flex items-center justify-between mb-6">
     <div>
       <h1 class="text-3xl font-bold text-gray-800">Appointments</h1>
@@ -16,13 +19,19 @@
     </div>
   </div>
 
+  @if (loading() && appointments().length === 0) {
+  <app-loading-spinner />
+  } @else if (error()) {
+  <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+    <p class="text-sm font-medium text-red-800">{{ error() }}</p>
+  </div>
+  } @else {
   <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
     <div class="mb-4">
       <span class="p-input-icon-left w-full md:w-96">
         <i class="pi pi-search"></i>
-          <input type="text" pInputText placeholder="Search by patient, doctor, or service..." 
-                 [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)"
-                 class="w-full" />
+        <input type="text" pInputText placeholder="Search by patient, doctor, or service..." [ngModel]="searchTerm()"
+          (ngModelChange)="searchTerm.set($event)" class="w-full" />
       </span>
     </div>
 
@@ -70,13 +79,24 @@
           </td>
           <td>
             <div class="flex gap-2">
-              <button pButton pRipple type="button" icon="pi pi-pencil"
-                class="p-button-text p-button-sm p-button-rounded" pTooltip="Edit Appointment"
-                tooltipPosition="top"></button>
+              <a [routerLink]="['/appointments', appointment.appointmentID, 'edit']"
+                class="p-button p-button-text p-button-sm p-button-rounded" pTooltip="Edit Appointment"
+                tooltipPosition="top">
+                <i class="pi pi-pencil"></i>
+              </a>
               <button pButton pRipple type="button" icon="pi pi-trash"
                 class="p-button-text p-button-sm p-button-rounded p-button-danger" pTooltip="Delete Appointment"
-                tooltipPosition="top"></button>
+                tooltipPosition="top" (click)="deleteAppointment(appointment)"></button>
             </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center py-8">
+            <i class="pi pi-calendar-times text-4xl text-gray-400 mb-3"></i>
+            <p class="text-gray-600 font-medium">No appointments found</p>
+            <p class="text-gray-500 text-sm mt-1">Try adjusting your search or schedule a new appointment</p>
           </td>
         </tr>
       </ng-template>
@@ -91,4 +111,5 @@
       </ng-template>
     </p-table>
   </div>
+  }
 </div>

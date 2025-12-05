@@ -33,4 +33,3 @@ public class DeletePatientCommandHandler : IRequestHandler<DeletePatientCommand,
         return Unit.Value;
     }
 }
-

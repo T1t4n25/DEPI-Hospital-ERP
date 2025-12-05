@@ -34,7 +34,10 @@
           </td>
           <td>
             <div class="flex gap-2">
-              <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"></button>
+              <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"
+                pTooltip="Edit"></button>
+              <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger"
+                (click)="deleteInventoryItem(item)" pTooltip="Delete"></button>
             </div>
           </td>
         </tr>
@@ -42,3 +45,6 @@
     </p-table>
   </div>
 </div>
+
+<p-confirmDialog />
+<p-toast />

@@ -46,7 +46,7 @@ export class InvoicesListComponent {
     this.loading.set(true);
     this.error.set(null);
 
-    this.service.getAll()
+    this.service.getAll({ pageSize: 10000 })
       .pipe(
         takeUntilDestroyed(),
         catchError((err: Error) => {

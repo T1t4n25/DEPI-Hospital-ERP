@@ -69,7 +69,7 @@ export class PatientsListComponent {
     this.loading.set(true);
     this.error.set(null);
 
-    this.service.getAll()
+    this.service.getAll({ pageSize: 10000 })
       .pipe(
         takeUntilDestroyed(),
         catchError((err: Error) => {
@@ -95,18 +95,6 @@ export class PatientsListComponent {
       accept: () => {
         this.loading.set(true);
         this.service.delete(patient.patientID)
-          .pipe(
-            takeUntilDestroyed(),
-            catchError((err: Error) => {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: err.message || 'Failed to delete patient'
-              });
-              this.loading.set(false);
-              return of(null);
-            })
-          )
           .subscribe({
             next: () => {
               this.messageService.add({
@@ -115,6 +103,14 @@ export class PatientsListComponent {
                 detail: 'Patient deleted successfully'
               });
               this.loadPatients();
+            },
+            error: (err: Error) => {
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: err.message || 'Failed to delete patient'
+              });
+              this.loading.set(false);
             }
           });
       }

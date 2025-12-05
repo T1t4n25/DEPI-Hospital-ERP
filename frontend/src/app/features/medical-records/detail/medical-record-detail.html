@@ -1,41 +1,68 @@
-<div class="medical-record-detail-container">
+<div class="medical-record-detail-container p-6">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
   <div class="mb-6">
-    <a routerLink="/medical-records" class="text-primary-600 hover:text-primary-700 mb-2 inline-block">
+    <a routerLink="/medical-records"
+      class="text-primary-600 hover:text-primary-700 mb-2 inline-flex items-center no-underline font-medium transition-colors duration-200">
       <i class="pi pi-arrow-left mr-2"></i>Back to Medical Records
     </a>
   </div>
 
   @if (loading()) {
-    <app-loading-spinner />
+  <app-loading-spinner />
   } @else if (error()) {
-    <div class="bg-red-50 border border-red-200 rounded-md p-4">
-      <p class="text-sm font-medium text-red-800">{{ error() }}</p>
-    </div>
+  <div class="bg-red-50 border border-red-200 rounded-md p-4">
+    <p class="text-sm font-medium text-red-800">{{ error() }}</p>
+  </div>
   } @else if (record()) {
-    <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-800">Medical Record #{{ record()!.recordID }}</h1>
+  <div class="flex justify-between items-start mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Medical Record #{{ record()!.recordID }}</h1>
+      <p class="text-gray-600 mt-1">Details for {{ record()!.patientName }}</p>
     </div>
+    <div class="flex gap-2">
+      <a [routerLink]="['/medical-records', record()!.recordID, 'edit']" class="p-button p-button-outlined">
+        <i class="pi pi-pencil mr-2"></i>Edit
+      </a>
+      <button pButton type="button" label="Delete" icon="pi pi-trash" class="p-button-danger"
+        (click)="deleteRecord()"></button>
+    </div>
+  </div>
 
-    <p-card class="shadow-sm">
-      <div class="grid grid-cols-2 gap-6">
-        <div>
-          <label class="text-sm text-gray-600">Patient</label>
-          <p class="font-medium text-gray-800">{{ record()!.patientName }}</p>
-        </div>
-        <div>
-          <label class="text-sm text-gray-600">Doctor</label>
-          <p class="font-medium text-gray-800">{{ record()!.doctorName }}</p>
-        </div>
-        <div>
-          <label class="text-sm text-gray-600">Diagnosis</label>
-          <p class="font-medium text-gray-800">{{ record()!.diagnosis }}</p>
-        </div>
-        <div>
-          <label class="text-sm text-gray-600">Diagnose Date</label>
-          <p class="font-medium text-gray-800">{{ record()!.diagnoseDate }}</p>
+  <p-card class="shadow-sm">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Record Information</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-500">Diagnosis</label>
+            <p class="text-lg text-gray-900 mt-1">{{ record()!.diagnosis }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-500">Date</label>
+            <p class="text-lg text-gray-900 mt-1">{{ record()!.diagnoseDate | date:'longDate' }}</p>
+          </div>
         </div>
       </div>
-    </p-card>
+
+      <div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Participants</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-500">Patient</label>
+            <a [routerLink]="['/patients', record()!.patientID]"
+              class="text-lg text-primary-600 hover:text-primary-700 no-underline mt-1 inline-block">
+              {{ record()!.patientName }}
+            </a>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-500">Doctor</label>
+            <p class="text-lg text-gray-900 mt-1">{{ record()!.doctorName }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </p-card>
   }
 </div>
-

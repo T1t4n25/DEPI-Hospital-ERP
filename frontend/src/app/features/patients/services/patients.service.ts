@@ -58,25 +58,34 @@ export class PatientsService {
   }
 
   create(data: CreatePatientModel): Observable<PatientDetailModel> {
-    this.clearCache();
     return this.http.post<PatientDetailModel>(this.apiUrl, data)
       .pipe(
+        map(result => {
+          this.clearCache();
+          return result;
+        }),
         catchError(this.handleError.bind(this))
       );
   }
 
   update(id: number, data: UpdatePatientModel): Observable<PatientDetailModel> {
-    this.clearCache();
     return this.http.put<PatientDetailModel>(`${this.apiUrl}/${id}`, data)
       .pipe(
+        map(result => {
+          this.clearCache();
+          return result;
+        }),
         catchError(this.handleError.bind(this))
       );
   }
 
   delete(id: number): Observable<void> {
-    this.clearCache();
     return this.http.delete<void>(`${this.apiUrl}/${id}`)
       .pipe(
+        map(result => {
+          this.clearCache();
+          return result;
+        }),
         catchError(this.handleError.bind(this))
       );
   }

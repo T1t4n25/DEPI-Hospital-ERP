@@ -35,6 +35,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/patients/form/patient-form').then(m => m.PatientFormComponent)
       },
       {
+        path: 'patients/:id/edit',
+        loadComponent: () => import('./features/patients/form/patient-form').then(m => m.PatientFormComponent)
+      },
+      {
         path: 'patients/:id',
         loadComponent: () => import('./features/patients/detail/patient-detail').then(m => m.PatientDetailComponent)
       },
@@ -51,6 +55,10 @@ export const routes: Routes = [
         path: 'appointments/new',
         loadComponent: () => import('./features/appointments/form/appointment-form').then(m => m.AppointmentFormComponent)
       },
+      {
+        path: 'appointments/:id/edit',
+        loadComponent: () => import('./features/appointments/form/appointment-form').then(m => m.AppointmentFormComponent)
+      },
       // Medical Records routes
       {
         path: 'medical-records',
@@ -58,6 +66,10 @@ export const routes: Routes = [
       },
       {
         path: 'medical-records/new',
+        loadComponent: () => import('./features/medical-records/form/medical-record-form').then(m => m.MedicalRecordFormComponent)
+      },
+      {
+        path: 'medical-records/:id/edit',
         loadComponent: () => import('./features/medical-records/form/medical-record-form').then(m => m.MedicalRecordFormComponent)
       },
       {
@@ -74,6 +86,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/employees/form/employee-form').then(m => m.EmployeeFormComponent)
       },
       {
+        path: 'employees/:id/edit',
+        loadComponent: () => import('./features/employees/form/employee-form').then(m => m.EmployeeFormComponent)
+      },
+      {
         path: 'employees/:id',
         loadComponent: () => import('./features/employees/detail/employee-detail').then(m => m.EmployeeDetailComponent)
       },
@@ -84,6 +100,10 @@ export const routes: Routes = [
       },
       {
         path: 'departments/new',
+        loadComponent: () => import('./features/departments/form/department-form').then(m => m.DepartmentFormComponent)
+      },
+      {
+        path: 'departments/:id/edit',
         loadComponent: () => import('./features/departments/form/department-form').then(m => m.DepartmentFormComponent)
       },
       // HR routes

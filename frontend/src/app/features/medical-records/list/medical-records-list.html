@@ -1,4 +1,7 @@
 <div class="medical-records-list-container">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
   <div class="flex items-center justify-between mb-6">
     <div>
       <h1 class="text-3xl font-bold text-gray-800">Medical Records</h1>
@@ -10,44 +13,83 @@
     </a>
   </div>
 
+  @if (loading() && records().length === 0) {
+  <app-loading-spinner />
+  } @else if (error()) {
+  <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+    <p class="text-sm font-medium text-red-800">{{ error() }}</p>
+  </div>
+  } @else {
   <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
     <div class="mb-4">
-      <span class="p-input-icon-left w-full">
+      <span class="p-input-icon-left w-full md:w-96">
         <i class="pi pi-search"></i>
-        <input type="text" pInputText placeholder="Search records..." [(ngModel)]="searchTerm" class="w-full" />
+        <input type="text" pInputText placeholder="Search by patient, doctor, or diagnosis..." [ngModel]="searchTerm()"
+          (ngModelChange)="searchTerm.set($event)" class="w-full" />
       </span>
     </div>
 
-    <p-table [value]="filteredRecords()" [paginator]="true" [rows]="10" [loading]="loading()">
+    <p-table [value]="filteredRecords()" [paginator]="true" [rows]="10" [loading]="loading()"
+      [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} records"
+      [rowsPerPageOptions]="[10, 25, 50]" styleClass="p-datatable-striped">
       <ng-template pTemplate="header">
         <tr>
-          <th>ID</th>
-          <th>Patient</th>
-          <th>Doctor</th>
+          <th pSortableColumn="recordID">
+            ID <p-sortIcon field="recordID"></p-sortIcon>
+          </th>
+          <th pSortableColumn="patientName">
+            Patient <p-sortIcon field="patientName"></p-sortIcon>
+          </th>
+          <th pSortableColumn="doctorName">
+            Doctor <p-sortIcon field="doctorName"></p-sortIcon>
+          </th>
           <th>Diagnosis</th>
-          <th>Date</th>
-          <th>Actions</th>
+          <th pSortableColumn="diagnoseDate">
+            Date <p-sortIcon field="diagnoseDate"></p-sortIcon>
+          </th>
+          <th style="width: 120px">Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-record>
         <tr>
-          <td>{{ record.recordID }}</td>
-          <td>{{ record.patientName }}</td>
-          <td>{{ record.doctorName }}</td>
+          <td><span class="font-mono text-sm">{{ record.recordID }}</span></td>
+          <td>
+            <div class="font-medium text-gray-900">{{ record.patientName }}</div>
+          </td>
+          <td>
+            <div class="font-medium text-gray-900">{{ record.doctorName }}</div>
+          </td>
           <td>{{ record.diagnosis }}</td>
           <td>{{ record.diagnoseDate | date:'mediumDate' }}</td>
           <td>
             <div class="flex gap-2">
-              <a [routerLink]="['/medical-records', record.recordID]" class="p-button p-button-text p-button-sm">
+              <a [routerLink]="['/medical-records', record.recordID]"
+                class="p-button p-button-text p-button-sm p-button-rounded" pTooltip="View Details"
+                tooltipPosition="top">
                 <i class="pi pi-eye"></i>
               </a>
-              <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm"></button>
+              <a [routerLink]="['/medical-records', record.recordID, 'edit']"
+                class="p-button p-button-text p-button-sm p-button-rounded" pTooltip="Edit Record"
+                tooltipPosition="top">
+                <i class="pi pi-pencil"></i>
+              </a>
               <button pButton pRipple type="button" icon="pi pi-trash"
-                class="p-button-text p-button-sm p-button-danger"></button>
+                class="p-button-text p-button-sm p-button-rounded p-button-danger" pTooltip="Delete Record"
+                tooltipPosition="top" (click)="deleteRecord(record)"></button>
             </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="text-center py-8">
+            <i class="pi pi-file text-4xl text-gray-400 mb-3"></i>
+            <p class="text-gray-600 font-medium">No medical records found</p>
+            <p class="text-gray-500 text-sm mt-1">Try adjusting your search or add a new record</p>
           </td>
         </tr>
       </ng-template>
     </p-table>
   </div>
+  }
 </div>

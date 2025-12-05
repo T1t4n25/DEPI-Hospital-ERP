@@ -14,6 +14,7 @@ import { RippleModule } from 'primeng/ripple';
   styleUrl: './pharmacy-prescriptions.css'
 })
 export class PharmacyPrescriptionsComponent {
+  // TODO: This component currently uses static data as there is no backend API for Prescriptions yet.
   prescriptions = [
     { id: 1, patient: 'John Doe', medication: 'Aspirin', quantity: 30, date: '2024-01-15', status: 'Filled' },
     { id: 2, patient: 'Jane Smith', medication: 'Paracetamol', quantity: 20, date: '2024-01-16', status: 'Pending' }

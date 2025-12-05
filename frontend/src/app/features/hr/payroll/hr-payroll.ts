@@ -13,6 +13,7 @@ import { TagModule } from 'primeng/tag';
   styleUrl: './hr-payroll.css'
 })
 export class HrPayrollComponent {
+  // TODO: This component currently uses static data as there is no backend API for Payroll yet.
   payrollData = [
     { id: 1, employee: 'Dr. John Smith', salary: '$8,000', deductions: '$1,200', net: '$6,800', status: 'Paid' },
     { id: 2, employee: 'Mary Williams', salary: '$5,000', deductions: '$750', net: '$4,250', status: 'Paid' }

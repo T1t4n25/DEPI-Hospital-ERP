@@ -1,97 +1,128 @@
-<div class="medical-record-form-container">
-  <div class="mb-6">
-    <a routerLink="/medical-records" class="text-primary-600 hover:text-primary-700 mb-2 inline-block">
-      <i class="pi pi-arrow-left mr-2"></i>Back to Medical Records
-    </a>
-    <h1 class="text-3xl font-bold text-gray-800">New Medical Record</h1>
+<div class="medical-record-form-container max-w-5xl mx-auto p-6">
+  <p-toast></p-toast>
+
+  <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+    <i class="pi pi-spin pi-spinner text-4xl text-primary-600"></i>
   </div>
 
-  <p-card class="shadow-sm">
-    <form (ngSubmit)="onSubmit()" class="space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div *ngIf="!isLoading">
+    <!-- Header Section -->
+    <div class="mb-8">
+      <a routerLink="/medical-records"
+        class="text-primary-600 hover:text-primary-700 mb-3 inline-flex items-center no-underline font-medium transition-colors duration-200 group">
+        <i class="pi pi-arrow-left mr-2 group-hover:-translate-x-1 transition-transform duration-200"></i>
+        Back to Medical Records
+      </a>
+      <div class="flex items-center gap-3 mt-3">
+        <div
+          class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg">
+          <i class="pi pi-file-edit text-white text-xl"></i>
+        </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Patient *</label>
-          <p-select 
-            [(ngModel)]="record.patient" 
-            name="patient"
-            [options]="patients" 
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Select Patient"
-            class="w-full"
-            required
-          ></p-select>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Doctor *</label>
-          <p-select 
-            [(ngModel)]="record.doctor" 
-            name="doctor"
-            [options]="doctors" 
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Select Doctor"
-            class="w-full"
-            required
-          ></p-select>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Diagnosis *</label>
-          <p-select 
-            [(ngModel)]="record.diagnosis" 
-            name="diagnosis"
-            [options]="diagnoses" 
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Select Diagnosis"
-            class="w-full"
-            required
-          ></p-select>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Date *</label>
-          <p-datepicker 
-            [(ngModel)]="record.date" 
-            name="date"
-            [showIcon]="true"
-            dateFormat="yy-mm-dd"
-            class="w-full"
-            required
-          ></p-datepicker>
-        </div>
-
-        <div class="md:col-span-2">
-          <label class="block text-sm font-medium text-gray-700 mb-2">Treatment *</label>
-          <textarea 
-            pTextarea
-            [(ngModel)]="record.treatment" 
-            name="treatment"
-            rows="3"
-            class="w-full"
-            required
-          ></textarea>
-        </div>
-
-        <div class="md:col-span-2">
-          <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
-          <textarea 
-            pTextarea
-            [(ngModel)]="record.notes" 
-            name="notes"
-            rows="3"
-            class="w-full"
-          ></textarea>
+          <h1 class="text-3xl font-bold text-gray-900">{{ isEditMode ? 'Edit Medical Record' : 'New Medical Record' }}
+          </h1>
+          <p class="text-gray-600 mt-1">{{ isEditMode ? 'Update medical record details' : 'Create a new medical record'
+            }}</p>
         </div>
       </div>
+    </div>
 
-      <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
-        <a routerLink="/medical-records" class="p-button p-button-outlined">Cancel</a>
-        <button pButton pRipple type="submit" label="Save Record" icon="pi pi-check" class="p-button-primary"></button>
-      </div>
-    </form>
-  </p-card>
+    <!-- Form Card -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+      <form (ngSubmit)="onSubmit()">
+        <!-- Record Details Section -->
+        <div class="p-8 border-b border-gray-100">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center">
+              <i class="pi pi-user text-red-600"></i>
+            </div>
+            <div>
+              <h2 class="text-xl font-semibold text-gray-900">Patient & Doctor</h2>
+              <p class="text-sm text-gray-500">Select patient and attending doctor</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="form-field">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <i class="pi pi-user text-gray-400 mr-2"></i>Patient *
+              </label>
+              <p-select [(ngModel)]="record.patientID" name="patient" [options]="patients" optionLabel="label"
+                optionValue="value" placeholder="Select Patient" [filter]="true" filterPlaceholder="Search patients..."
+                class="w-full"
+                styleClass="w-full border-2 border-gray-200 rounded-lg hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
+                required>
+              </p-select>
+            </div>
+
+            <div class="form-field">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <i class="pi pi-user-plus text-gray-400 mr-2"></i>Doctor *
+              </label>
+              <p-select [(ngModel)]="record.doctorID" name="doctor" [options]="doctors" optionLabel="label"
+                optionValue="value" placeholder="Select Doctor" [filter]="true" filterPlaceholder="Search doctors..."
+                class="w-full"
+                styleClass="w-full border-2 border-gray-200 rounded-lg hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
+                required>
+              </p-select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Diagnosis Section -->
+        <div class="p-8 border-b border-gray-100 bg-gray-50">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+              <i class="pi pi-heart-fill text-blue-600"></i>
+            </div>
+            <div>
+              <h2 class="text-xl font-semibold text-gray-900">Diagnosis Information</h2>
+              <p class="text-sm text-gray-500">Diagnosis details and date</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="form-field">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <i class="pi pi-list text-gray-400 mr-2"></i>Diagnosis *
+              </label>
+              <p-select [(ngModel)]="record.diagnosesid" name="diagnosis" [options]="diagnoses" optionLabel="label"
+                optionValue="value" placeholder="Select Diagnosis" [filter]="true"
+                filterPlaceholder="Search diagnoses..." class="w-full"
+                styleClass="w-full border-2 border-gray-200 rounded-lg hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
+                required>
+              </p-select>
+            </div>
+
+            <div class="form-field">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <i class="pi pi-calendar text-gray-400 mr-2"></i>Diagnose Date *
+              </label>
+              <p-datepicker [(ngModel)]="record.diagnoseDate" name="date" [showIcon]="true" dateFormat="yy-mm-dd"
+                [appendTo]="'body'" class="w-full"
+                inputStyleClass="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all duration-200"
+                placeholder="Select date" required>
+              </p-datepicker>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="p-8 bg-white">
+          <div class="flex justify-end gap-4">
+            <a routerLink="/medical-records"
+              class="px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 no-underline inline-flex items-center gap-2 cursor-pointer">
+              <i class="pi pi-times"></i>
+              Cancel
+            </a>
+            <button pButton pRipple type="submit" [label]="isEditMode ? 'Update Record' : 'Save Record'"
+              icon="pi pi-check"
+              class="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 inline-flex items-center gap-2"
+              [loading]="isSubmitting">
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
-
