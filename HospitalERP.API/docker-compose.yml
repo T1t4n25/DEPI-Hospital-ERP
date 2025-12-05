@@ -6,7 +6,6 @@ services:
       - .env
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=${DB_PASSWORD}
       - MSSQL_PID=Developer
     ports:
       - "${DB_PORT:-1433}:1433"

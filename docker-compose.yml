@@ -11,7 +11,7 @@ services:
       - ACCEPT_EULA=Y
       - MSSQL_PID=Developer
     ports:
-      - "${DB_PORT}:1433"
+      - "1433:1433"
     volumes:
       - ./HospitalERP.API/Scripts/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
       - ./HospitalERP.API/Scripts/docker-entrypoint.sh:/docker-entrypoint.sh:ro
