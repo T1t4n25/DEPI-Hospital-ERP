@@ -10,6 +10,7 @@ public class Patient
     public string Address { get; set; } = string.Empty;
     public int BloodTypeID { get; set; }
     public string ContactNumber { get; set; } = string.Empty;
+    public bool Deleted { get; set; } = false;
 
     // Navigation properties
     public Gender Gender { get; set; } = null!;

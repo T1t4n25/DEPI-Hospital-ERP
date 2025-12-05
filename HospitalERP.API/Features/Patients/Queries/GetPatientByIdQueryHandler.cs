@@ -25,9 +25,10 @@ public class GetPatientByIdQueryHandler : IRequestHandler<GetPatientByIdQuery, P
     {
         var patient = await _context.Patients
             .AsNoTracking()
+            .Where(p => p.PatientID == request.PatientID && !p.Deleted) // Filter out soft-deleted patients
             .Include(p => p.Gender)
             .Include(p => p.BloodType)
-            .FirstOrDefaultAsync(p => p.PatientID == request.PatientID, cancellationToken);
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (patient == null)
         {

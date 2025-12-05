@@ -10,7 +10,7 @@ namespace HospitalERP.API.Features.Employees;
 
 [ApiController]
 [Route("api/employees")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,HR")]
 public class EmployeesController : ControllerBase
 {
     private readonly IMediator _mediator;

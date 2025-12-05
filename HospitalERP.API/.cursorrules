@@ -34,6 +34,7 @@ rules:
       Inventory
       Services
       Invoices
+      Dashboard
       Users (Admin)
     No new modules can be added without documentation.
 
@@ -96,14 +97,17 @@ rules:
       [Authorize(Roles = "Receptionist")]
       [Authorize(Roles = "Pharmacist")]
       [Authorize(Roles = "Accountant")]
+      [Authorize(Roles = "HR")]
 
   - Feature-specific security:
       Patients → Admin, Doctor, Receptionist
       MedicalRecords → Admin, Doctor
       Appointments → Admin, Doctor, Receptionist
+      Employees → Admin, HR
       Medications → Admin, Pharmacist
       Inventory → Admin, Pharmacist
       Invoices → Admin, Accountant, Receptionist
+      Dashboard → Admin (admin endpoint), HR (hr endpoint), Accountant (accountant endpoint)
 
   # ------------------------
   # COMMANDS STRUCTURE
