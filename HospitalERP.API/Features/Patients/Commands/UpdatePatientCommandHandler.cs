@@ -24,7 +24,7 @@ public class UpdatePatientCommandHandler : IRequestHandler<UpdatePatientCommand,
         CancellationToken cancellationToken)
     {
         var patient = await _context.Patients
-            .FirstOrDefaultAsync(p => p.PatientID == request.Dto.PatientID, cancellationToken);
+            .FirstOrDefaultAsync(p => p.PatientID == request.Dto.PatientID && !p.Deleted, cancellationToken);
 
         if (patient == null)
         {
@@ -51,9 +51,10 @@ public class UpdatePatientCommandHandler : IRequestHandler<UpdatePatientCommand,
 
         // Reload with includes
         var updatedPatient = await _context.Patients
+            .Where(p => p.PatientID == patient.PatientID && !p.Deleted)
             .Include(p => p.Gender)
             .Include(p => p.BloodType)
-            .FirstAsync(p => p.PatientID == patient.PatientID, cancellationToken);
+            .FirstAsync(cancellationToken);
 
         return _mapper.Map<PatientDetailDto>(updatedPatient);
     }

@@ -20,14 +20,15 @@ public class DeletePatientCommandHandler : IRequestHandler<DeletePatientCommand,
         CancellationToken cancellationToken)
     {
         var patient = await _context.Patients
-            .FirstOrDefaultAsync(p => p.PatientID == request.PatientID, cancellationToken);
+            .FirstOrDefaultAsync(p => p.PatientID == request.PatientID && !p.Deleted, cancellationToken);
 
         if (patient == null)
         {
             throw new NotFoundException(nameof(Patient), request.PatientID);
         }
 
-        _context.Patients.Remove(patient);
+        // Soft delete: Set Deleted flag to true instead of removing the record
+        patient.Deleted = true;
         await _context.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;

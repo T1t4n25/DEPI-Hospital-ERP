@@ -25,6 +25,7 @@ public class GetAllPatientsQueryHandler : IRequestHandler<GetAllPatientsQuery, P
     {
         var query = _context.Patients
             .AsNoTracking()
+            .Where(p => !p.Deleted) // Filter out soft-deleted patients
             .Include(p => p.Gender)
             .Include(p => p.BloodType)
             .AsQueryable();

@@ -53,6 +53,7 @@ public class HospitalDbContext : DbContext
             entity.Property(e => e.LastName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Address).HasMaxLength(500);
             entity.Property(e => e.ContactNumber).HasMaxLength(20);
+            entity.Property(e => e.Deleted).IsRequired().HasDefaultValue(false);
 
             entity.HasOne(e => e.Gender)
                 .WithMany(g => g.Patients)

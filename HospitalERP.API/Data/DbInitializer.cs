@@ -47,7 +47,8 @@ public static class DbInitializer
             new Role { RoleName = "Nurse" },
             new Role { RoleName = "Receptionist" },
             new Role { RoleName = "Pharmacist" },
-            new Role { RoleName = "Accountant" }
+            new Role { RoleName = "Accountant" },
+            new Role { RoleName = "HR" }
         };
         context.Roles.AddRange(roles);
         await context.SaveChangesAsync();
