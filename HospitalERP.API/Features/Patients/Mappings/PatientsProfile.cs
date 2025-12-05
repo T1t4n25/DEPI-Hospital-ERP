@@ -11,7 +11,8 @@ public class PatientsProfile : Profile
         CreateMap<CreatePatientDto, Patient>();
         CreateMap<UpdatePatientDto, Patient>();
         CreateMap<Patient, PatientListDto>()
-            .ForMember(dest => dest.GenderName, opt => opt.MapFrom(src => src.Gender.GenderName));
+            .ForMember(dest => dest.GenderName, opt => opt.MapFrom(src => src.Gender.GenderName))
+            .ForMember(dest => dest.BloodTypeName, opt => opt.MapFrom(src => src.BloodType.BloodTypeName));
         CreateMap<Patient, PatientDetailDto>()
             .ForMember(dest => dest.GenderName, opt => opt.MapFrom(src => src.Gender.GenderName))
             .ForMember(dest => dest.BloodTypeName, opt => opt.MapFrom(src => src.BloodType.BloodTypeName));
