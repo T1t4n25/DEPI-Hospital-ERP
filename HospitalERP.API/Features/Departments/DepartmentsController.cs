@@ -5,12 +5,14 @@ using HospitalERP.API.Features.Departments.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.AspNetCore.RateLimiting;
 namespace HospitalERP.API.Features.Departments;
 
 [ApiController]
 [Route("api/departments")]
 [Authorize(Roles = "Admin")]
+[EnableRateLimiting("fixed")]
+[ResponseCache(Duration = 60)]
 public class DepartmentsController : ControllerBase
 {
     private readonly IMediator _mediator;

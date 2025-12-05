@@ -3,12 +3,14 @@ using HospitalERP.API.Features.Dashboard.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace HospitalERP.API.Features.Dashboard;
 
 [ApiController]
 [Route("api/dashboard")]
 [Authorize]
+[EnableRateLimiting("fixed")]
 public class DashboardController : ControllerBase
 {
     private readonly IMediator _mediator;
