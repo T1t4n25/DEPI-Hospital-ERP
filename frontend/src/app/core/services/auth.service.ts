@@ -225,6 +225,8 @@ export class AuthService {
         roles: payload.realm_access?.roles || [],
         sub: payload.sub
       });
+      console.log('User loaded:', this._currentUser());
+      console.log('User Roles:', this._currentUser()?.roles);
     } catch (error) {
       console.error('Error decoding token:', error);
     }
@@ -251,7 +253,8 @@ export class AuthService {
     sessionStorage.removeItem('pkce_code_verifier');
 
     // Redirect to Keycloak logout
-    const logoutUrl = `${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/logout?redirect_uri=${encodeURIComponent(window.location.origin)}`;
+    // Use post_logout_redirect_uri for OIDC compliant logout
+    const logoutUrl = `${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}&client_id=${this.clientId}`;
     window.location.href = logoutUrl;
   }
 
@@ -260,7 +263,9 @@ export class AuthService {
    */
   hasRole(role: string): boolean {
     const user = this._currentUser();
-    return user?.roles?.includes(role) || false;
+    if (!user?.roles) return false;
+    // Case-insensitive check
+    return user.roles.some(r => r.toLowerCase() === role.toLowerCase());
   }
 
   /**

@@ -7,6 +7,16 @@ export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   if (authService.isAuthenticated()) {
+    const requiredRoles = route.data['roles'] as string[];
+
+    if (requiredRoles && requiredRoles.length > 0) {
+      const hasRequiredRole = requiredRoles.some(role => authService.hasRole(role));
+      if (!hasRequiredRole) {
+        // Redirect to unauthorized page or dashboard if authorized but wrong role
+        router.navigate(['/dashboard']);
+        return false;
+      }
+    }
     return true;
   }
 

@@ -28,7 +28,8 @@ export const routes: Routes = [
       // Patients routes
       {
         path: 'patients',
-        loadComponent: () => import('./features/patients/list/patients-list').then(m => m.PatientsListComponent)
+        loadComponent: () => import('./features/patients/list/patients-list').then(m => m.PatientsListComponent),
+        data: { roles: ['Admin', 'Doctor', 'Receptionist'] }
       },
       {
         path: 'patients/new',
@@ -45,7 +46,8 @@ export const routes: Routes = [
       // Appointments routes
       {
         path: 'appointments',
-        loadComponent: () => import('./features/appointments/list/appointments-list').then(m => m.AppointmentsListComponent)
+        loadComponent: () => import('./features/appointments/list/appointments-list').then(m => m.AppointmentsListComponent),
+        data: { roles: ['Admin', 'Doctor', 'Receptionist'] }
       },
       {
         path: 'appointments/calendar',
@@ -62,7 +64,8 @@ export const routes: Routes = [
       // Medical Records routes
       {
         path: 'medical-records',
-        loadComponent: () => import('./features/medical-records/list/medical-records-list').then(m => m.MedicalRecordsListComponent)
+        loadComponent: () => import('./features/medical-records/list/medical-records-list').then(m => m.MedicalRecordsListComponent),
+        data: { roles: ['Admin', 'Doctor'] }
       },
       {
         path: 'medical-records/new',
@@ -79,7 +82,8 @@ export const routes: Routes = [
       // Employees routes
       {
         path: 'employees',
-        loadComponent: () => import('./features/employees/list/employees-list').then(m => m.EmployeesListComponent)
+        loadComponent: () => import('./features/employees/list/employees-list').then(m => m.EmployeesListComponent),
+        data: { roles: ['Admin'] }
       },
       {
         path: 'employees/new',
@@ -96,7 +100,8 @@ export const routes: Routes = [
       // Departments routes
       {
         path: 'departments',
-        loadComponent: () => import('./features/departments/list/departments-list').then(m => m.DepartmentsListComponent)
+        loadComponent: () => import('./features/departments/list/departments-list').then(m => m.DepartmentsListComponent),
+        data: { roles: ['Admin'] }
       },
       {
         path: 'departments/new',
@@ -109,7 +114,8 @@ export const routes: Routes = [
       // HR routes
       {
         path: 'hr/dashboard',
-        loadComponent: () => import('./features/hr/dashboard/hr-dashboard').then(m => m.HrDashboardComponent)
+        loadComponent: () => import('./features/hr/dashboard/hr-dashboard').then(m => m.HrDashboardComponent),
+        data: { roles: ['Admin'] }
       },
       {
         path: 'hr/employees',
@@ -126,7 +132,8 @@ export const routes: Routes = [
       // Pharmacy routes
       {
         path: 'pharmacy/dashboard',
-        loadComponent: () => import('./features/pharmacy/dashboard/pharmacy-dashboard').then(m => m.PharmacyDashboardComponent)
+        loadComponent: () => import('./features/pharmacy/dashboard/pharmacy-dashboard').then(m => m.PharmacyDashboardComponent),
+        data: { roles: ['Admin', 'Pharmacist'] }
       },
       {
         path: 'pharmacy/medications',
@@ -143,7 +150,8 @@ export const routes: Routes = [
       // Services routes
       {
         path: 'services',
-        loadComponent: () => import('./features/services/list/services-list').then(m => m.ServicesListComponent)
+        loadComponent: () => import('./features/services/list/services-list').then(m => m.ServicesListComponent),
+        data: { roles: ['Admin'] }
       },
       {
         path: 'services/new',
@@ -152,7 +160,8 @@ export const routes: Routes = [
       // Invoices routes
       {
         path: 'invoices',
-        loadComponent: () => import('./features/invoices/list/invoices-list').then(m => m.InvoicesListComponent)
+        loadComponent: () => import('./features/invoices/list/invoices-list').then(m => m.InvoicesListComponent),
+        data: { roles: ['Admin', 'Accountant', 'Receptionist'] }
       },
       {
         path: 'invoices/new',
@@ -165,7 +174,8 @@ export const routes: Routes = [
       // Inventory routes
       {
         path: 'inventory',
-        loadComponent: () => import('./features/inventory/list/inventory-list').then(m => m.InventoryListComponent)
+        loadComponent: () => import('./features/inventory/list/inventory-list').then(m => m.InventoryListComponent),
+        data: { roles: ['Admin', 'Pharmacist'] }
       },
       {
         path: 'inventory/new',

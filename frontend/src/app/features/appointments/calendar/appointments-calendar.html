@@ -16,18 +16,25 @@
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="lg:col-span-2">
       <p-card header="Calendar" class="shadow-sm">
-        <p-datepicker [(ngModel)]="selectedDate" [inline]="true"></p-datepicker>
+        <p-datepicker [(ngModel)]="selectedDate" (onSelect)="filterEvents()" [inline]="true">
+          <ng-template pTemplate="date" let-date>
+            <span [ngClass]="{'bg-gray-200 text-gray-800 font-bold rounded-full': hasAppointment(date)}"
+              class="flex items-center justify-center w-8 h-8 mx-auto">
+              {{date.day}}
+            </span>
+          </ng-template>
+        </p-datepicker>
       </p-card>
     </div>
     <div>
       <p-card header="Upcoming Appointments" class="shadow-sm">
         <div class="space-y-4">
           @for (event of events; track event.title) {
-            <div class="p-3 border border-gray-200 rounded-lg">
-              <p class="font-medium text-gray-800">{{ event.title }}</p>
-              <p class="text-sm text-gray-600">{{ event.date }} at {{ event.time }}</p>
-              <p class="text-sm text-gray-500">{{ event.doctor }}</p>
-            </div>
+          <div class="p-3 border border-gray-200 rounded-lg">
+            <p class="font-medium text-gray-800">{{ event.title }}</p>
+            <p class="text-sm text-gray-600">{{ event.date }} at {{ event.time }}</p>
+            <p class="text-sm text-gray-500">{{ event.doctor }}</p>
+          </div>
           }
         </div>
       </p-card>
