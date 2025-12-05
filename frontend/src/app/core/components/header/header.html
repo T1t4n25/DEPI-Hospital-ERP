@@ -47,7 +47,7 @@
         <img [src]="userAvatar()" [alt]="currentUser()!.name" class="w-8 h-8 rounded-full" />
         <div class="hidden md:block text-left">
           <p class="text-sm font-medium text-gray-800">{{ currentUser()!.name }}</p>
-          <p class="text-xs text-gray-500">{{ currentUser()!.role }}</p>
+          <p class="text-xs text-gray-500">{{ userRole() }}</p>
         </div>
         <i class="pi pi-angle-down text-gray-600"></i>
       </button>
@@ -57,7 +57,7 @@
         <div class="p-3 border-b border-gray-100">
           <p class="text-sm font-medium text-gray-800">{{ currentUser()!.name }}</p>
           <p class="text-xs text-gray-500 mt-1">{{ currentUser()!.email }}</p>
-          <p class="text-xs text-blue-600 mt-1 font-medium">{{ currentUser()!.role }}</p>
+          <p class="text-xs text-blue-600 mt-1 font-medium">{{ userRole() }}</p>
         </div>
         <div class="p-2">
           <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">

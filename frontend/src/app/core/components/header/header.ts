@@ -32,6 +32,15 @@ export class HeaderComponent {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0ea5e9&color=fff&size=128`;
   });
 
+  readonly userRole = computed(() => {
+    const user = this.currentUser();
+    if (!user || !user.roles) return '';
+
+    const allowedRoles = ['Receptionist', 'Pharmacist', 'Nurse', 'Doctor', 'Accountant', 'Admin'];
+    const role = user.roles.find(r => allowedRoles.includes(r));
+    return role || user.roles[0] || '';
+  });
+
   toggleUserMenu() {
     this.showUserMenu.set(!this.showUserMenu());
   }
@@ -43,6 +52,7 @@ export class HeaderComponent {
   get unreadCount() {
     return this.notifications.filter(n => !n.read).length;
   }
+
 
   logout(event: Event) {
     event.preventDefault();
